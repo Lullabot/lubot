@@ -1,0 +1,32 @@
+{
+  "name": "simplebot",
+  "version": "0.0.1",
+
+  "author": "Lullabot",
+
+  "keywords": [
+    "irc",
+    "bot"
+  ],
+
+  "description": "A simple helpful IRC robot for your Company",
+
+  "licenses": [{
+    "type": "MIT",
+    "url": "https://github.com/github/hubot/raw/master/LICENSE"
+  }],
+
+  "repository" : {
+    "type": "git",
+    "url": "https://github.com/lullabot/simplebot.git"
+  },
+
+  "dependencies": {
+    "irc": "0.3.6"
+  },
+
+  "engines": {
+    "node": ">= 0.8.x",
+    "npm":  ">= 1.1.x"
+  }
+}
