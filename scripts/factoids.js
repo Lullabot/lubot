@@ -16,7 +16,7 @@ module.exports = function(bot) {
     if (cutText !== false) {
       var re = /(.+?)\sis\s(.+)/;
       var matches = re.exec(cutText);
-      if (typeof matches === 'object' && matches[1] !== null && matches[1].length > 0 && matches[2] !== null && matches[2].length > 0) {
+      if (matches !== null && matches.hasOwnProperty(1) && matches[1].length > 0 && matches.hasOwnProperty(2) && matches[2].length > 0) {
         bot.brain.saveKV(matches[1], matches[2], 'factoids');
         bot.irc.say(to, nick + ': Okay!');
       }

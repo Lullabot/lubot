@@ -108,7 +108,7 @@ bot.brain = {
       }
       var collection = db.collection(collection_n);
       collection.findAndModify(
-        {key: key},
+        {key: key.toLowerCase()},
         [['_id','asc']],
         {$set: {value: value}},
         {upsert: true},
@@ -126,7 +126,7 @@ bot.brain = {
         collection_n = config.mongoPrefix + collection_name;
       }
       var collection = db.collection(collection_n);
-      collection.findOne({key: key}, function(err, document) {
+      collection.findOne({key: key.toLowerCase()}, function(err, document) {
         if (document && document.value && typeof success === 'function') {
           success(document.value);
         }
@@ -160,66 +160,41 @@ bot.brain = {
       });
     }
   },
-  /**
-   * Save a user to the database.
-   *
-   * @param string account
-   *   The account name. "bob"
-   * @param function sucess
-   *   Success callback function.
-   *   function(account) {}
-   *     @param Object account
-   *       The updated user account.
-   */
-  createUser: function(account, success) {
-    if (account !== null && typeof account === 'string') {
-      this.mongoClient().connect(config.mongoUrl, function(err, db) {
-        if (err) throw err;
-        var collection = db.collection(config.mongoPrefix + 'users');
-        collection.update(
-          {account: account},
-          {account: account},
-          {upsert: true},
-          function(err, object) {
-            if (typeof success === 'function') {
-              success(object);
-            }
-            db.close();
-          }
-        );
-      });
-    }
-  },
-  saveToCollection: function(collection_name, id, data) {
+  saveToCollection: function(collection_name, data) {
     this.mongoClient().connect(config.mongoUrl, function(err, db) {
       if (err) throw err;
       var collection = db.collection(config.mongoPrefix + collection_name);
-      data.id = id;
-      collection.findAndModify(
-        {id: id},
-        [['_id','asc']],
-        {$set: data},
-        {upsert: true},
-        function(err, object) {
-          db.close();
-        }
-      );
-    });
-  },
-  loadFromCollection: function(collection_name, id, success, error) {
-    this.mongoClient().connect(config.mongoUrl, function(err, db) {
-      if (err) throw err;
-      var collection = db.collection(config.mongoPrefix + collection_name);
-      collection.findOne({id: id}, function(err, document) {
-        if (document && typeof success === 'function') {
-          success(document);
-        }
-        else if (typeof error === 'function'){
-          error(document);
-        }
+      collection.insert(data, {safe: true}, function(err, records) {
         db.close();
       });
     });
+  },
+  loadFromCollection: function(collection_name, search, success) {
+    if (typeof collection_name === 'string' && typeof search === 'object' && typeof success === 'function') {
+      this.mongoClient().connect(config.mongoUrl, function(err, db) {
+        if (err) throw err;
+        var collection = db.collection(config.mongoPrefix + collection_name);
+        collection.find(search, function(err, cursor) {
+          if (cursor !== null) {
+            cursor.toArray(function(err, docs) {
+              success(docs);
+              db.close();
+            });
+          }
+        });
+      });
+    }
+  },
+  removeFromCollection: function(collection_name, search) {
+    if (typeof collection_name === 'string' && typeof search === 'object') {
+      this.mongoClient().connect(config.mongoUrl, function(err, db) {
+        if (err) throw err;
+        var collection = db.collection(config.mongoPrefix + collection_name);
+        collection.remove(search, {w:1}, function(err, numberOfRemovedDocs) {
+          db.close();
+        });
+      });
+    }
   }
 };
 
@@ -240,42 +215,8 @@ bot.helpers.irc = {
       return bot.irc.chans[channel].users;
     }
     return {};
-  }
+  },
 };
-
-/**
- * Keep track of users.
- */
-// When the bot gets a list of names when joiining a channel.
-bot.irc.addListener('names', function(channel, nicks) {
-  for(var nick in nicks) {
-    var whois = bot.irc.whois(nick, function(info) {
-      if (info.account) {
-        // Registered nick.
-        bot.brain.createUser(info.account);
-      }
-    });
-  }
-});
-// When a user joins a channel.
-bot.irc.addListener('join', function(channel, nick, message) {
-  var whois = bot.irc.whois(nick, function(info) {
-    if (info.account) {
-      // Registered nick.
-      bot.brain.createUser(info.account);
-    }
-  });
-});
-// When a user changes their nick.
-bot.irc.addListener('join', function(oldnick, newnick, channels, message) {
-  var whois = bot.irc.whois(newnick, function(info) {
-    if (info.account) {
-      // Registered nick.
-      bot.brain.createUser(info.account);
-    }
-  });
-});
-
 
 // Load Scripts
 require("fs").readdirSync("./scripts").forEach(function(file) {
