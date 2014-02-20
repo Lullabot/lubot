@@ -1,9 +1,10 @@
 /** 
  * Description:
- *   Broadcasts a message to all users of a channel.
+ *   Allows messages to be left for other users.
  *
  * Commands:
  *   simplebot: tell <nick> <text>
+ *   messages?
  *
  **/ 
 module.exports = function(bot) {

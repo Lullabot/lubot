@@ -99,6 +99,14 @@ bot.brain = {
         , format = require('util').format;
         return MongoClient;
   },
+  /**
+   * Save an item into the Key/Value store.
+   *
+   * @param string key
+   * @param (anything) value
+   * @param (optional) collection_name
+   *   Store items into their own collection
+   */
   saveKV: function(key, value, collection_name) {
     this.mongoClient().connect(config.mongoUrl, function(err, db) {
       if (err) throw err;
@@ -118,6 +126,17 @@ bot.brain = {
       );
     });
   },
+  /**
+   * Retrieve an item from the Key/value store.
+   *
+   * @param string key
+   * @param (optional) collection_name
+   *   If this item has been stored into it's own collection, provide the name here.
+   * @param (optional) function success
+   *   @return function(value){}
+   * @param (optional) function error
+   *   @retun function(error){}
+   */
   loadKV: function(key, collection_name, success, error) {
     this.mongoClient().connect(config.mongoUrl, function(err, db) {
       if (err) throw err;
@@ -131,13 +150,22 @@ bot.brain = {
           success(document.value);
         }
         else if (typeof error === 'function') {
-          error(document);
+          error(err);
         }
         db.close();
       });
     });
   },
-  incKV: function(key, amount, collection_name, success) {
+  /**
+   * Increment a number value stored in the Key/Value store.
+   * Negative numbers can also be used to decrement values.
+   *
+   * @param string key
+   * @param number amount
+   * @param (optional) string collection_name
+   *   If this item has been stored into it's own collection, provide the name here.
+   */
+  incKV: function(key, amount, collection_name) {
     if (key !== null && typeof key === 'string' && amount !== null && typeof amount === 'number') {
       this.mongoClient().connect(config.mongoUrl, function(err, db) {
         if (err) throw err;
@@ -151,15 +179,52 @@ bot.brain = {
           {$inc: {value: amount}},
           {upsert: true},
           function(err, object) {
-            if (success !== null && typeof success === 'function') {
-              success(object);
-            }
             db.close();
           }
         );
       });
     }
   },
+  /**
+   * Log an item into the message log. This is automatically initiated for every message in a channel
+   * the bot resides in.
+   *
+   * @param object data
+   */
+  messageLog: function(data) {
+    if (data !== null && typeof data === 'object') {
+      this.mongoClient().connect(config.mongoUrl, function(err, db) {
+        if (err) throw err;
+        data.time = new Date().getTime();
+        var collection  = db.collection(config.mongoPrefix + 'logs');
+        collection.insert(data, {safe: true}, function(err, records) {
+          db.close();
+        });
+      });
+    }
+  },
+  /**
+   * Search the message log.
+   *
+   * @param stringtext
+   *   @see http://docs.mongodb.org/manual/tutorial/search-for-text/
+   *
+   * @return ?
+   */
+  searchMessageLog: function(text) {
+    this.mongoClient().connect(config.mongoUrl, function(err, db) {
+      db.command({text: config.mongoPrefix + 'logs', search: text}, function(err, objects) {
+        console.log(objects);
+        db.close();
+      });
+    });
+  },
+  /**
+   * Save data to a collection.
+   *
+   * @param string collection_name
+   * @param object data
+   */
   saveToCollection: function(collection_name, data) {
     this.mongoClient().connect(config.mongoUrl, function(err, db) {
       if (err) throw err;
@@ -169,6 +234,15 @@ bot.brain = {
       });
     });
   },
+  /**
+   * Load data from a collection.
+   *
+   * @param string collection_name
+   * @param object search parameters
+   *   {nick: "simplebot"}
+   * @param function success
+   *   @return function(docs) {}
+   */
   loadFromCollection: function(collection_name, search, success) {
     if (typeof collection_name === 'string' && typeof search === 'object' && typeof success === 'function') {
       this.mongoClient().connect(config.mongoUrl, function(err, db) {
@@ -185,6 +259,13 @@ bot.brain = {
       });
     }
   },
+  /**
+   * Delete an item from a collection.
+   *
+   * @param string collection_name
+   * @param object search parameters
+   *   {nick: "simplebot"}
+   */
   removeFromCollection: function(collection_name, search) {
     if (typeof collection_name === 'string' && typeof search === 'object') {
       this.mongoClient().connect(config.mongoUrl, function(err, db) {
@@ -217,6 +298,16 @@ bot.helpers.irc = {
     return {};
   },
 };
+
+/**
+ * Logger
+ */
+bot.brain.mongoClient().connect(config.mongoUrl, function(err, db) {
+  db.ensureIndex(config.mongoPrefix + 'logs', {text: "text"}, function(err, obj) {});
+  bot.irc.addListener("message#", function(nick, to, text, message) {
+    bot.brain.messageLog({nick: nick, channel: to, text: text});
+  });
+});
 
 // Load Scripts
 require("fs").readdirSync("./scripts").forEach(function(file) {
