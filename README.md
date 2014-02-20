@@ -18,6 +18,7 @@ Add these in to the scripts/ directory
 
 ## Using the Brain
 See simplebot.js for detailed explanations.
+
 ```
 saveKV: function(key, value, collection_name)
 
@@ -35,6 +36,7 @@ loadFromCollection: function(collection_name, search, success)
 
 removeFromCollection: function(collection_name, search)
 ```
+
 Example:
 
 
