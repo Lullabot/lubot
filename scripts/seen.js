@@ -21,7 +21,7 @@ module.exports = function(bot) {
   });
   
   // Log when a user leaves a channel.
-  bot.irc.addLsitener('part', function (channel, nick, reason, message) {
+  bot.irc.addListener('part', function (channel, nick, reason, message) {
     
   });
 };

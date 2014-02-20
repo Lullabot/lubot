@@ -134,10 +134,8 @@ bot.brain = {
    *   If this item has been stored into it's own collection, provide the name here.
    * @param (optional) function success
    *   @return function(value){}
-   * @param (optional) function error
-   *   @retun function(error){}
    */
-  loadKV: function(key, collection_name, success, error) {
+  loadKV: function(key, collection_name, success) {
     this.mongoClient().connect(config.mongoUrl, function(err, db) {
       if (err) throw err;
       var collection_n = config.mongoPrefix + 'kv';
@@ -149,12 +147,31 @@ bot.brain = {
         if (document && document.value && typeof success === 'function') {
           success(document.value);
         }
-        else if (typeof error === 'function') {
-          error(err);
-        }
         db.close();
       });
     });
+  },
+  /**
+   * Delete an item from the Key/Value store.
+   *
+   * @param string key
+   * @param (optional) collection_name
+   *   If this item has been stored into it's own collection, provide the name here.
+   */
+  removeKV: function(key, collection_name) {
+    if (typeof key === 'string') {
+      this.mongoClient().connect(config.mongoUrl, function(err, db) {
+        if (err) throw err;
+        var collection_n = config.mongoPrefix + 'kv';
+        if (collection_name !== null && typeof collection_name === 'string') {
+          collection_n = config.mongoPrefix + collection_name;
+        }
+        var collection = db.collection(collection_n);
+        collection.remove({key: key}, {w:1}, function(err, numberOfRemovedDocs) {
+          db.close();
+        });
+      });
+    }
   },
   /**
    * Increment a number value stored in the Key/Value store.

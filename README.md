@@ -26,6 +26,8 @@ loadKV: function(key, collection_name, success, error)
 
 incKV: function(key, amount, collection_name)
 
+removeKV: function(key, collection_name)
+
 messageLog: function(data)
 
 searchMessageLog: function(text)
