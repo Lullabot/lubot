@@ -36,7 +36,7 @@ module.exports = function(bot) {
 
     if (endText !== false) {
       // Remove the bot name.
-      var botName = bot.helpers.utils.startsWith(bot.irc.opt.nick + ': ');
+      var botName = bot.helpers.utils.startsWith(bot.irc.opt.nick + ': ', endText);
       if (botName !== false) {
         endText = botName;
       }
