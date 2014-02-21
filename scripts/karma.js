@@ -1,4 +1,4 @@
-/** 
+/**
  * Description:
  *   Keeps track of karma
  *
@@ -6,7 +6,7 @@
  *   <item>++
  *   <item>--
  *
- **/ 
+ **/
 module.exports = function(bot) {
   bot.irc.addListener('message#', function(nick, to, text, message) {
     var endsWithUp = bot.helpers.utils.endsWith('++', text);

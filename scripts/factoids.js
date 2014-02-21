@@ -1,4 +1,4 @@
-/** 
+/**
  * Description:
  *   Saves and retrieves facts.
  *
@@ -10,7 +10,7 @@
  *     > ericduran is jacketless
  *  simplebot: factoid delete <key>
  *
- **/ 
+ **/
 module.exports = function(bot) {
   // Add factoids.
   bot.irc.addListener('message#', function(nick, to, text, message) {

@@ -1,4 +1,4 @@
-/** 
+/**
  * Description:
  *   Allows messages to be left for other users.
  *
@@ -6,7 +6,7 @@
  *   simplebot: tell <nick> <text>
  *   messages?
  *
- **/ 
+ **/
 module.exports = function(bot) {
   // Listen for new messages.
   bot.irc.addListener("message#", function(nick, to, text, message) {

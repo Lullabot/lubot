@@ -1,11 +1,11 @@
-/** 
+/**
  * Description:
  *   Broadcasts a message to all users of a channel.
  *
  * Commands:
  *   simplebot all: <text>
  *
- **/ 
+ **/
 module.exports = function(bot) {
   bot.irc.addListener("message#", function(nick, to, text, message) {
     var cutText = bot.helpers.utils.startsWith('all: ', text);

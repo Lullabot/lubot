@@ -1,5 +1,80 @@
 # Simplebot
 
+## Commands
+### factoids
+```
+/** 
+ * Description:
+ *   Saves and retrieves facts.
+ *
+ * Commands:
+ *   simplebot: ericduran is jacketless
+ *   ericduran?
+ *     > ericduran is jacketless
+ *   ericduran!
+ *     > ericduran is jacketless
+ *  simplebot: factoid delete <key>
+ *
+ **/ 
+```
+### karma
+```
+/** 
+ * Description:
+ *   Keeps track of karma
+ *
+ * Commands:
+ *   <item>++
+ *   <item>--
+ *
+ **/ 
+```
+### ooo
+```
+/** 
+ * Description:
+ *   Shows who's out of office.
+ *
+ * Commands:
+ *   ooo?
+ *
+ **/ 
+ ```
+### seen
+```
+/** 
+ * Description:
+ *   Broadcasts a message to all users of a channel.
+ *
+ * Commands:
+ *   simplebot all: <text>
+ *
+ **/ 
+```
+### all
+```
+/** 
+ * Description:
+ *   Broadcasts a message to all users of a channel.
+ *
+ * Commands:
+ *   simplebot all: <text>
+ *
+ **/ 
+```
+### tell
+```
+/** 
+ * Description:
+ *   Allows messages to be left for other users.
+ *
+ * Commands:
+ *   simplebot: tell <nick> <text>
+ *   messages?
+ *
+ **/ 
+```
+
 ## Running
 ### Heroku
 Create a MongoLab database, making sure you tick the "experimental features". You may have to create another one through the MongoLab interface after Heroku has created a default one. You can use this URL for your local development as well.
@@ -14,33 +89,13 @@ node simplebot.js
 ```
 
 ## Commands / Scripts
-Add these in to the scripts/ directory
+Add these in to the /scripts directory
 
 ## Using the Brain
 See simplebot.js for detailed explanations.
 
-```
-saveKV: function(key, value, collection_name)
-
-loadKV: function(key, collection_name, success, error)
-
-incKV: function(key, amount, collection_name)
-
-removeKV: function(key, collection_name)
-
-messageLog: function(data)
-
-searchMessageLog: function(text)
-
-saveToCollection: function(collection_name, data)
-
-loadFromCollection: function(collection_name, search, success)
-
-removeFromCollection: function(collection_name, search)
-```
 
 Example:
-
 
 ```
 bot.simplebot.brain.saveKV('sally', 'fish');
