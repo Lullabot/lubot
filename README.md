@@ -1,7 +1,7 @@
 # Simplebot
 
 ## Commands
-### factoids
+### factoids (channel agnostic)
 ```
 /** 
  * Description:
@@ -17,7 +17,7 @@
  *
  **/ 
 ```
-### karma
+### karma (channel agnostic)
 ```
 /**
  * Description:
@@ -30,7 +30,7 @@
  *
  **/
 ```
-### ooo
+### ooo (only #lullabot)
 ```
 /** 
  * Description:
@@ -41,7 +41,7 @@
  *
  **/ 
  ```
-### seen
+### seen (per channel)
 ```
 /** 
  * Description:
@@ -63,7 +63,7 @@
  *
  **/ 
 ```
-### tell
+### tell (per channel)
 ```
 /** 
  * Description:
