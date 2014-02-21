@@ -19,15 +19,16 @@
 ```
 ### karma
 ```
-/** 
+/**
  * Description:
  *   Keeps track of karma
  *
  * Commands:
  *   <item>++
  *   <item>--
+ *   karma <item>(?)
  *
- **/ 
+ **/
 ```
 ### ooo
 ```
@@ -79,10 +80,29 @@
 ### Heroku
 Create a MongoLab database, making sure you tick the "experimental features". You may have to create another one through the MongoLab interface after Heroku has created a default one. You can use this URL for your local development as well.
 
+Set the following environment variables.
+```
+heroku config:add export SIMPLEBOT_IRC_ROOMS = "#room1,room2"
+heroku config:add export SIMPLEBOT_IRC_SERVER = "holmes.freenode.net"
+heroku config:add export SIMPLEBOT_IRC_PORT = 6697
+heroku config:add export SIMPLEBOT_IRC_NICK = "simplebot"
+heroku config:add export SIMPLEBOT_MONGODB = "mongodb://<username>:<password>@<host>:<port>/<database>"
+heroku config:add export SIMPLEBOT_MONGOPREFIX = "simplebot_"
+```
+
 Edit simplebot.js to configure, then just push the repository to Heroku.
 
 ### Locally
-Edit simplebot.js to point to your mongodb instance.
+Set environment variables
+
+```
+export SIMPLEBOT_IRC_ROOMS = "#room1,room2"
+export SIMPLEBOT_IRC_SERVER = "holmes.freenode.net"
+export SIMPLEBOT_IRC_PORT = 6697
+export SIMPLEBOT_IRC_NICK = "simplebot"
+export SIMPLEBOT_MONGODB = "mongodb://<username>:<password>@<host>:<port>/<database>"
+export SIMPLEBOT_MONGOPREFIX = "simplebot_"
+```
 
 ```
 node simplebot.js

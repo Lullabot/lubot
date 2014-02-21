@@ -1,10 +1,11 @@
 // Bot configuration.
 var config = {
-  channels: ["#lullaclient"],
-  server: "holmes.freenode.net",
-  botName: "simplebotlb",
-  mongoUrl: "mongodb://simplebot:simple!@ds063218.mongolab.com:63218/simplebot",
-  mongoPrefix: "simplebot_"
+  channels: process.env.SIMPLEBOT_IRC_ROOMS.split(","),
+  server: process.env.SIMPLEBOT_IRC_SERVER,
+  port: process.env.SIMPLEBOT_IRC_PORT,
+  botName: process.env.SIMPLEBOT_IRC_NICK,
+  mongoUrl: process.env.SIMPLEBOT_MONGODB,
+  mongoPrefix: process.env.SIMPLEBOT_MONGOPREFIX
 };
 
 // Intialise the bot.
@@ -15,7 +16,10 @@ var bot = {
 // Connect to IRC.
 var irc = require("irc");
 bot.irc = new irc.Client(config.server, config.botName, {
-  channels: config.channels
+  channels: config.channels,
+  port: config.port,
+  secure: true,
+  stripColors: true
 });
 bot.irc.once("registered", function(channel, who) {
   console.log('Connected to ' + config.server);
