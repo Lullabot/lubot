@@ -1,10 +1,10 @@
 // Bot configuration.
 var config = {
-  channels: [""],
-  server: "",
-  botName: "",
-  mongoUrl: "",
-  mongoPrefix: ""
+  channels: ["#lullaclient"],
+  server: "holmes.freenode.net",
+  botName: "simplebotlb",
+  mongoUrl: "mongodb://simplebot:simple!@ds063218.mongolab.com:63218/simplebot",
+  mongoPrefix: "simplebot_"
 };
 
 // Intialise the bot.
@@ -17,8 +17,16 @@ var irc = require("irc");
 bot.irc = new irc.Client(config.server, config.botName, {
   channels: config.channels
 });
-bot.irc.addListener("registered", function(channel, who) {
+bot.irc.once("registered", function(channel, who) {
   console.log('Connected to ' + config.server);
+});
+
+// Increase max listeners.
+bot.irc.setMaxListeners(50);
+
+// Catch IRC errors.
+bot.irc.addListener('error', function(message) {
+    console.log('error: ', message);
 });
 
 /**
