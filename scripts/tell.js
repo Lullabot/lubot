@@ -27,7 +27,7 @@ module.exports = function(bot) {
       if (info.account !== undefined && info.account !== null) {
         accounts.push({nick: info.account});
       }
-      bot.brain.loadFromCollection('tell', {channel: channel, $or: accounts}, function(docs) {
+      bot.brain.loadFromCollection('tell', {channel: channel, $or: accounts}, {}, function(docs) {
         if (docs.length === 1) {
           bot.irc.say(channel, nick + ': I have ' + docs.length + ' message for you. Type "messages?" to receive them.')
         }
@@ -46,7 +46,7 @@ module.exports = function(bot) {
         if (info.account !== undefined && info.account !== null) {
           accounts.push({nick: info.account});
         }
-        bot.brain.loadFromCollection('tell', {channel: to, $or: accounts}, function(docs) {
+        bot.brain.loadFromCollection('tell', {channel: to, $or: accounts}, {}, function(docs) {
           if (docs.length > 0) {
             for (var i = 0; i < docs.length; i++) {
               bot.irc.say(to, nick + ': ' + docs[i].nick + ' said "' + docs[i].message + '"');
