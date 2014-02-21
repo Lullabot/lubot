@@ -82,12 +82,12 @@ Create a MongoLab database, making sure you tick the "experimental features". Yo
 
 Set the following environment variables.
 ```
-heroku config:add export SIMPLEBOT_IRC_ROOMS = "#room1,room2"
-heroku config:add export SIMPLEBOT_IRC_SERVER = "holmes.freenode.net"
-heroku config:add export SIMPLEBOT_IRC_PORT = 6697
-heroku config:add export SIMPLEBOT_IRC_NICK = "simplebot"
-heroku config:add export SIMPLEBOT_MONGODB = "mongodb://<username>:<password>@<host>:<port>/<database>"
-heroku config:add export SIMPLEBOT_MONGOPREFIX = "simplebot_"
+heroku config:add SIMPLEBOT_IRC_ROOMS="#room1,room2"
+heroku config:add SIMPLEBOT_IRC_SERVER="holmes.freenode.net"
+heroku config:add SIMPLEBOT_IRC_PORT=6697
+heroku config:add SIMPLEBOT_IRC_NICK="simplebot"
+heroku config:add SIMPLEBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
+heroku config:add SIMPLEBOT_MONGOPREFIX="simplebot_"
 ```
 
 Edit simplebot.js to configure, then just push the repository to Heroku.
@@ -96,12 +96,12 @@ Edit simplebot.js to configure, then just push the repository to Heroku.
 Set environment variables
 
 ```
-export SIMPLEBOT_IRC_ROOMS = "#room1,room2"
-export SIMPLEBOT_IRC_SERVER = "holmes.freenode.net"
-export SIMPLEBOT_IRC_PORT = 6697
-export SIMPLEBOT_IRC_NICK = "simplebot"
-export SIMPLEBOT_MONGODB = "mongodb://<username>:<password>@<host>:<port>/<database>"
-export SIMPLEBOT_MONGOPREFIX = "simplebot_"
+export SIMPLEBOT_IRC_ROOMS="#room1,room2"
+export SIMPLEBOT_IRC_SERVER="holmes.freenode.net"
+export SIMPLEBOT_IRC_PORT=6697
+export SIMPLEBOT_IRC_NICK="simplebot"
+export SIMPLEBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
+export SIMPLEBOT_MONGOPREFIX="simplebot_"
 ```
 
 ```
