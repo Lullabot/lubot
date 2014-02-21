@@ -86,6 +86,39 @@ bot.helpers.utils = {
       }
     }
     return a;
+  },
+  /**
+   * Returns the timestamp formatted as "time since.."
+   * e.g. "4 seconds ago"
+   *
+   * @param number timestamp
+   *
+   * @return string
+   */
+  'timeSince': function(timestamp) {
+    var seconds = Math.floor((new Date() - timestamp) / 1000);
+    var interval = Math.floor(seconds / 31536000);
+
+    if (interval > 1) {
+      return interval + " years";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) {
+      return interval + " months";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) {
+      return interval + " days";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) {
+      return interval + " hours";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+      return interval + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
   }
 };
 
@@ -221,6 +254,35 @@ bot.brain = {
     }
   },
   /**
+   * Load an item from the message log.
+   * @param object search parameters
+   *   {nick: "simplebot"}
+   * @param object options
+   *   {limit: 20, skip: 10, sort: "title"}
+   * @param function success
+   *   @return function(docs) {}
+   */
+  loadMessageLog: function(search, options, success) {
+    if (typeof search === 'object' && typeof options === 'object' && typeof success === 'function') {
+      this.mongoClient().connect(config.mongoUrl, function(err, db) {
+        if (err) throw err;
+        options_m = {};
+        if (options !== null && typeof options === "object") {
+          options_m = options;
+        }
+        var collection = db.collection(config.mongoPrefix + 'logs');
+        collection.find(search, options, function(err, cursor) {
+          if (cursor !== null) {
+            cursor.toArray(function(err, docs) {
+              success(docs);
+              db.close();
+            });
+          }
+        });
+      });
+    }
+  },
+  /**
    * Search the message log.
    *
    * @param stringtext
@@ -257,15 +319,21 @@ bot.brain = {
    * @param string collection_name
    * @param object search parameters
    *   {nick: "simplebot"}
+   * @param object options
+   *   {limit: 20, skip: 10, sort: "title"}
    * @param function success
    *   @return function(docs) {}
    */
-  loadFromCollection: function(collection_name, search, success) {
-    if (typeof collection_name === 'string' && typeof search === 'object' && typeof success === 'function') {
+  loadFromCollection: function(collection_name, search, options, success) {
+    if (typeof collection_name === 'string' && typeof search === 'object' && typeof options === 'object' && typeof success === 'function') {
       this.mongoClient().connect(config.mongoUrl, function(err, db) {
         if (err) throw err;
+        options_m = {};
+        if (options !== null && typeof options === "object") {
+          options_m = options;
+        }
         var collection = db.collection(config.mongoPrefix + collection_name);
-        collection.find(search, function(err, cursor) {
+        collection.find(search, options, function(err, cursor) {
           if (cursor !== null) {
             cursor.toArray(function(err, docs) {
               success(docs);
