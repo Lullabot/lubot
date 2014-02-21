@@ -1,5 +1,6 @@
 // Bot configuration.
 var config = {
+  webPort: Number(process.env.PORT || 5000),
   channels: process.env.SIMPLEBOT_IRC_ROOMS.split(","),
   server: process.env.SIMPLEBOT_IRC_SERVER,
   port: process.env.SIMPLEBOT_IRC_PORT,
@@ -7,6 +8,14 @@ var config = {
   mongoUrl: process.env.SIMPLEBOT_MONGODB,
   mongoPrefix: process.env.SIMPLEBOT_MONGOPREFIX
 };
+
+// Web worker
+var my_http = require("http");
+my_http.createServer(function(request, response){
+  response.writeHeader(200, {"Content-Type": "text/plain"});
+  response.write("Hello World");
+  response.end();
+}).listen(config.webPort);
 
 // Intialise the bot.
 var bot = {

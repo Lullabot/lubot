@@ -1,1 +1,1 @@
-worker: node simplebot.js
+web: node simplebot.js
