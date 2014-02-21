@@ -8,6 +8,8 @@
  *     > ericduran is jacketless
  *   ericduran!
  *     > ericduran is jacketless
+ *   simplebot: ericduran?
+ *     > ericduran is jacketless
  *  simplebot: factoid delete <key>
  *
  **/
@@ -33,6 +35,12 @@ module.exports = function(bot) {
     }
 
     if (endText !== false) {
+      // Remove the bot name.
+      var botName = bot.helpers.utils.startsWith(bot.irc.opt.nick + ': ');
+      if (botName !== false) {
+        endText = botName;
+      }
+      
       bot.brain.loadKV(endText, 'factoids', function(value) {
         bot.irc.say(to, endText + ' is ' + value);
       });
