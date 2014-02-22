@@ -1,7 +1,7 @@
 # Simplebot
 
 ## Commands
-### factoids (channel agnostic)
+### factoids (per channel)
 ```
 /**
  * Description:
