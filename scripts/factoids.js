@@ -10,18 +10,20 @@
  *     > ericduran is jacketless
  *   simplebot: ericduran?
  *     > ericduran is jacketless
+ *   simplebot: ericduran!
+ *     > ericduran is jacketless
  *  simplebot: factoid delete <key>
  *
  **/
 module.exports = function(bot) {
   // Add factoids.
   bot.irc.addListener('message#', function(nick, to, text, message) {
-    var cutText = bot.helpers.utils.startsWith(bot.irc.opt.nick + ': ', text);
-    if (cutText !== false) {
+    text = bot.helpers.utils.startsBot(text);
+    if (text !== false) {
       var re = /(.+?)\sis\s(.+)/;
-      var matches = re.exec(cutText);
+      var matches = re.exec(text);
       if (matches !== null && matches.hasOwnProperty(1) && matches[1].length > 0 && matches.hasOwnProperty(2) && matches[2].length > 0) {
-        bot.brain.saveKV(matches[1], matches[2], 'factoids');
+        bot.brain.upsertToCollection('factoids', {key: matches[1], channel: to}, {key: matches[1], channel: to, factoid: matches[2]});
         bot.irc.say(to, nick + ': Okay!');
       }
     }
@@ -29,29 +31,34 @@ module.exports = function(bot) {
   
   // Respond to factoids.
   bot.irc.addListener('message#', function(nick, to, text, message) {
-    var endText = bot.helpers.utils.endsWith('?', text);
-    if (endText === false) {
-      endText = bot.helpers.utils.endsWith('!', text);
+    var qText = bot.helpers.utils.endsWith('?', text);
+    if (qText !== false) {
+      text = qText;
     }
-
-    if (endText !== false) {
-      // Remove the bot name.
-      var botName = bot.helpers.utils.startsWith(bot.irc.opt.nick + ': ', endText);
-      if (botName !== false) {
-        endText = botName;
+    else {
+      text = bot.helpers.utils.endsWith('!', text);
+    }
+    
+    if (text !== false) {
+      // Remove bot name
+      var newText = bot.helpers.utils.startsBot(text);
+      if (newText !== false) {
+        text = newText;
       }
       
-      bot.brain.loadKV(endText, 'factoids', function(value) {
-        bot.irc.say(to, endText + ' is ' + value);
+      bot.brain.loadFromCollection('factoids', {key: text, channel: to}, {}, function(docs) {
+        if (docs.hasOwnProperty(0)) {
+          bot.irc.say(to, text + ' is ' + docs[0].factoid);
+        }
       });
     }
   });
   
   // Delete a factoid
   bot.irc.addListener('message#', function(nick, to, text, message) {
-    var cutText = bot.helpers.utils.startsWith(bot.irc.opt.nick + ': delete factoid ', text);
-    if (cutText !== false) {
-      bot.brain.removeKV(cutText, 'factoids');
+    text = bot.helpers.utils.startsWithBot('delete factoid ', text);
+    if (text !== false) {
+      bot.brain.removeFromCollection(factoids, {key: cutText, channel: to});
       bot.irc.say(to, nick + ': Okay!');
     }
   });

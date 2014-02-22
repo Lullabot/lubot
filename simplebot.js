@@ -57,7 +57,7 @@ bot.helpers.utils = {
    * @return string|bool
    *   The string with the token cut out, or false if it wasn't found.
    */
-  'startsWith': function(token, text) {
+  startsWith: function(token, text) {
     var start = text.slice(0, token.length);
     if (start === token) {
       newText = text.slice(token.length);
@@ -66,6 +66,37 @@ bot.helpers.utils = {
       }
     }
     return false;
+  },
+  /**
+   * Sees if the text is addressing the bot.
+   *
+   * @param string text
+   *   The string to search in
+   *
+   * @return string|bool
+   *   The string with the token cut out, or false if it wasn't found.
+   */
+  startsBot: function(text) {
+    return this.startsWith(bot.irc.opt.nick + ': ', text);
+  },
+  /**
+   * Finds if a string begins with another string, possibly prefixed by the
+   * bot name.
+   *
+   * @param string token
+   *   The string to look for
+   * @param string text
+   *   The string to search in
+   *
+   * @return string|bool
+   *   The string with the token cut out, or false if it wasn't found.
+   */
+  startsWithBot: function(token, text) { 
+    text = this.startsBot(text);
+    if (text !== false) {
+      text = this.startsWith(token, text);
+    }
+    return text;
   },
   /**
    * Finds if a string ends with another string.
@@ -78,7 +109,7 @@ bot.helpers.utils = {
    * @return string|bool
    *   The string with the token cut out, or fale if it wasn't found
    */
-  'endsWith': function(token, text) {
+  endsWith: function(token, text) {
     var end = text.slice(0 - token.length);
     if (end === token) {
       newText = text.slice(0, text.length - token.length);
@@ -97,7 +128,7 @@ bot.helpers.utils = {
    * @return Array
    *   The processed array.
    */
-  'unique': function(array) {
+  unique: function(array) {
     var a = array.concat();
     for(var i=0; i<a.length; ++i) {
       for(var j=i+1; j<a.length; ++j) {
@@ -116,7 +147,7 @@ bot.helpers.utils = {
    *
    * @return string
    */
-  'timeSince': function(timestamp) {
+  timeSince: function(timestamp) {
     var seconds = Math.floor((new Date() - timestamp) / 1000);
     var interval = Math.floor(seconds / 31536000);
 
@@ -332,6 +363,26 @@ bot.brain = {
       collection.insert(data, {safe: true}, function(err, records) {
         db.close();
       });
+    });
+  },
+  /**
+   * Update or insert data in a collection.
+   *
+   * @param string collection_name
+   * @param object search
+   * @param object data
+   */
+  upsertToCollection: function(collection_name, search, data) {
+    this.mongoClient().connect(config.mongoUrl, function(err, db) {
+      if (err) throw err;
+      var collection = db.collection(config.mongoPrefix + collection_name);
+      collection.update(
+        search,
+        {$set: data},
+        {upsert: true}, function(err, count) {
+          db.close();
+        }
+      );
     });
   },
   /**

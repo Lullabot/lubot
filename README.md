@@ -3,7 +3,7 @@
 ## Commands
 ### factoids (channel agnostic)
 ```
-/** 
+/**
  * Description:
  *   Saves and retrieves facts.
  *
@@ -13,9 +13,13 @@
  *     > ericduran is jacketless
  *   ericduran!
  *     > ericduran is jacketless
+ *   simplebot: ericduran?
+ *     > ericduran is jacketless
+ *   simplebot: ericduran!
+ *     > ericduran is jacketless
  *  simplebot: factoid delete <key>
  *
- **/ 
+ **/
 ```
 ### karma (channel agnostic)
 ```
