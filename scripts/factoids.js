@@ -58,7 +58,7 @@ module.exports = function(bot) {
   bot.irc.addListener('message#', function(nick, to, text, message) {
     text = bot.helpers.utils.startsWithBot('delete factoid ', text);
     if (text !== false) {
-      bot.brain.removeFromCollection(factoids, {key: cutText, channel: to});
+      bot.brain.removeFromCollection('factoids', {key: text, channel: to});
       bot.irc.say(to, nick + ': Okay!');
     }
   });
