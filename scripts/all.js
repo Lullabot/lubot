@@ -4,11 +4,12 @@
  *
  * Commands:
  *   simplebot all: <text>
+ *   all: <text>
  *
  **/
 module.exports = function(bot) {
   bot.irc.addListener("message#", function(nick, to, text, message) {
-    var cutText = bot.helpers.utils.startsWith('all: ', text);
+    var cutText = bot.helpers.utils.startsWithBot('all:', text);
     if (cutText !== false) {
       var replyText = '';
       users = bot.helpers.irc.channelUsers(to);

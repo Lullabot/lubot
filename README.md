@@ -100,7 +100,7 @@ Edit simplebot.js to configure, then just push the repository to Heroku.
 Set environment variables
 
 ```
-export SIMPLEBOT_IRC_ROOMS="#room1,room2"
+export SIMPLEBOT_IRC_ROOMS="#room1,#room2"
 export SIMPLEBOT_IRC_SERVER="holmes.freenode.net"
 export SIMPLEBOT_IRC_PORT=6697
 export SIMPLEBOT_IRC_NICK="simplebot"

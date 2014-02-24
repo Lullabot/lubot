@@ -27,7 +27,7 @@ var irc = require("irc");
 bot.irc = new irc.Client(config.server, config.botName, {
   channels: config.channels,
   port: config.port,
-  secure: true,
+  //secure: true,
   stripColors: true
 });
 bot.irc.once("registered", function(channel, who) {
@@ -77,7 +77,11 @@ bot.helpers.utils = {
    *   The string with the token cut out, or false if it wasn't found.
    */
   startsBot: function(text) {
-    return this.startsWith(bot.irc.opt.nick + ': ', text);
+    var botText = this.startsWith(bot.irc.opt.nick + ': ', text);
+    if (botText === false) {
+      botText = this.startsWith(bot.irc.opt.nick + ' ', text);
+    }
+    return botText;
   },
   /**
    * Finds if a string begins with another string, possibly prefixed by the
@@ -91,9 +95,12 @@ bot.helpers.utils = {
    * @return string|bool
    *   The string with the token cut out, or false if it wasn't found.
    */
-  startsWithBot: function(token, text) { 
-    text = this.startsBot(text);
-    if (text !== false) {
+  startsWithBot: function(token, text) {
+    botText = this.startsBot(text);
+    if (botText !== false) {
+      text = this.startsWith(token, botText);
+    }
+    else {
       text = this.startsWith(token, text);
     }
     return text;
