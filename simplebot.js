@@ -178,6 +178,20 @@ bot.helpers.utils = {
       return interval + " minutes";
     }
     return Math.floor(seconds) + " seconds";
+  },
+  /**
+   * Finds if an object key is set and has length.
+   *
+   * @param object object
+   * @param string|number key
+   *
+   * @return bool
+   */
+  empty: function(object, key) {
+    if (object !== null && object.hasOwnProperty(key) && object[key].length > 0) {
+      return false;
+    }
+    return true;
   }
 };
 
