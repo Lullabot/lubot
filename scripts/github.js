@@ -1,11 +1,6 @@
 /**
  * Description:
- *   Broadcasts a message to all users of a channel.
- *
- * Commands:
- *   simplebot all: <text>
- *   all: <text>
- *
+ *   Broadcasts Issues and Pull Requests.
  **/
 module.exports = function(bot, app) {
   var githubConfig = JSON.parse(process.env.SIMPLEBOT_GITHUB);
