@@ -3,7 +3,7 @@
  *   Allows messages to be left for other users.
  *
  * Commands:
- *   simplebot: tell <nick> <text>
+ *   lubot: tell <nick> <text>
  *   messages?
  *
  **/

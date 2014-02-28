@@ -3,7 +3,7 @@
  *   Broadcasts Issues and Pull Requests.
  **/
 module.exports = function(bot, app) {
-  var githubConfig = JSON.parse(process.env.SIMPLEBOT_GITHUB);
+  var githubConfig = JSON.parse(process.env.LUBOT_GITHUB);
   app.post('/github', function(request, response) {
     if (payload !== null) {
       var payload = JSON.parse(request.body.payload);

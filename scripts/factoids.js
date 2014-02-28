@@ -3,16 +3,16 @@
  *   Saves and retrieves facts.
  *
  * Commands:
- *   simplebot: ericduran is jacketless
+ *   lubot: ericduran is jacketless
  *   ericduran?
  *     > ericduran is jacketless
  *   ericduran!
  *     > ericduran is jacketless
- *   simplebot: ericduran?
+ *   lubot: ericduran?
  *     > ericduran is jacketless
- *   simplebot: ericduran!
+ *   lubot: ericduran!
  *     > ericduran is jacketless
- *  simplebot: factoid delete <key>
+ *  lubot: factoid delete <key>
  *
  **/
 module.exports = function(bot) {

@@ -3,7 +3,7 @@
  *   Broadcasts a message to all users of a channel.
  *
  * Commands:
- *   simplebot all: <text>
+ *   lubot all: <text>
  *   all: <text>
  *
  **/
