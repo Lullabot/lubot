@@ -35,7 +35,7 @@ var irc = require("irc");
 bot.irc = new irc.Client(config.server, config.botName, {
   channels: config.channels,
   port: config.port,
-  //secure: true,
+  secure: true,
   stripColors: true
 });
 bot.irc.once("registered", function(channel, who) {
@@ -309,7 +309,7 @@ bot.brain = {
   /**
    * Load an item from the message log.
    * @param object search parameters
-   *   {nick: "simplebot"}
+   *   {nick: "lubot"}
    * @param object options
    *   {limit: 20, skip: 10, sort: "title"}
    * @param function success
@@ -391,7 +391,7 @@ bot.brain = {
    *
    * @param string collection_name
    * @param object search parameters
-   *   {nick: "simplebot"}
+   *   {nick: "lubot"}
    * @param object options
    *   {limit: 20, skip: 10, sort: "title"}
    * @param function success
@@ -422,7 +422,7 @@ bot.brain = {
    *
    * @param string collection_name
    * @param object search parameters
-   *   {nick: "simplebot"}
+   *   {nick: "lubot"}
    */
   removeFromCollection: function(collection_name, search) {
     if (typeof collection_name === 'string' && typeof search === 'object') {
