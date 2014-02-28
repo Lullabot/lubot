@@ -9,13 +9,14 @@ var config = {
   mongoPrefix: process.env.SIMPLEBOT_MONGOPREFIX
 };
 
-// Web worker
-var my_http = require("http");
-my_http.createServer(function(request, response){
-  response.writeHeader(200, {"Content-Type": "text/plain"});
-  response.write("Hello World");
-  response.end();
-}).listen(config.webPort);
+var express = require('express');
+var app = express();
+app.use(express.json());
+app.use(express.urlencoded());
+app.get('/', function(req, res){
+  res.send('Hello, world!');
+});
+app.listen(config.webPort);
 
 // Intialise the bot.
 var bot = {
@@ -497,6 +498,6 @@ bot.brain.mongoClient().connect(config.mongoUrl, function(err, db) {
 // Load Scripts
 require("fs").readdirSync("./scripts").forEach(function(file) {
   if (bot.helpers.utils.endsWith(".js", file) !== false) {
-    require("./scripts/" + file)(bot);
+    require("./scripts/" + file)(bot, app);
   }
 });

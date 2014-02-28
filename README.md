@@ -80,6 +80,16 @@
  **/ 
 ```
 
+## Integrations
+### Github
+Set your webhook URL to "http://<your-domain>/github" and export a JSON object into your settings with repo/channel mappings (see "Running"). Currently shows Issue and Pull Request actions.
+
+```json
+{
+  "Lullabot/simplebot": "#simplebot"
+}
+```
+
 ## Running
 ### Heroku
 Create a MongoLab database, making sure you tick the "experimental features". You may have to create another one through the MongoLab interface after Heroku has created a default one. You can use this URL for your local development as well.
@@ -92,6 +102,7 @@ heroku config:add SIMPLEBOT_IRC_PORT=6697
 heroku config:add SIMPLEBOT_IRC_NICK="simplebot"
 heroku config:add SIMPLEBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
 heroku config:add SIMPLEBOT_MONGOPREFIX="simplebot_"
+herolu config:add SIMPLEBOT_GITHUB = "{\"justafish/test\": \"#bot\"}";
 ```
 
 Edit simplebot.js to configure, then just push the repository to Heroku.
@@ -106,6 +117,7 @@ export SIMPLEBOT_IRC_PORT=6697
 export SIMPLEBOT_IRC_NICK="simplebot"
 export SIMPLEBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
 export SIMPLEBOT_MONGOPREFIX="simplebot_"
+export SIMPLEBOT_GITHUB="{\"justafish/test\": \"#bot\"}";
 ```
 
 ```
