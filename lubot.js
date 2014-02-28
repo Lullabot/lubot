@@ -9,6 +9,13 @@ var config = {
   mongoPrefix: process.env.LUBOT_MONGOPREFIX
 };
 
+if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
+  config.botPassword = process.env.LUBOT_IRC_NICK_PW;
+}
+else {
+  config.botPassword = null;
+}
+
 var express = require('express');
 var app = express();
 app.use(express.json());
@@ -33,6 +40,7 @@ bot.irc = new irc.Client(config.server, config.botName, {
 });
 bot.irc.once("registered", function(channel, who) {
   console.log('Connected to ' + config.server);
+  bot.irc.say('NickServ', 'IDENTIFY ' + config.botName + ' ' + config.botPassword);
 });
 
 // Increase max listeners.
