@@ -1,84 +1,13 @@
-# Simplebot
+# Lubot
+Lubot is a JavaScript node.js IRC bot that's designed to run across multiple channels simultaneously, backed by MongoDB. You can also run it on a free Heroku instance.
 
-## Commands
-### factoids (per channel)
-```
-/**
- * Description:
- *   Saves and retrieves facts.
- *
- * Commands:
- *   simplebot: ericduran is jacketless
- *   ericduran?
- *     > ericduran is jacketless
- *   ericduran!
- *     > ericduran is jacketless
- *   simplebot: ericduran?
- *     > ericduran is jacketless
- *   simplebot: ericduran!
- *     > ericduran is jacketless
- *  simplebot: factoid delete <key>
- *
- **/
-```
-### karma (channel agnostic)
-```
-/**
- * Description:
- *   Keeps track of karma
- *
- * Commands:
- *   <item>++
- *   <item>--
- *   karma <item>(?)
- *
- **/
-```
-### ooo (only #lullabot)
-```
-/** 
- * Description:
- *   Shows who's out of office.
- *
- * Commands:
- *   ooo?
- *
- **/ 
- ```
-### seen (per channel)
-```
-/** 
- * Description:
- *   Broadcasts a message to all users of a channel.
- *
- * Commands:
- *   simplebot all: <text>
- *
- **/ 
-```
-### all
-```
-/** 
- * Description:
- *   Broadcasts a message to all users of a channel.
- *
- * Commands:
- *   simplebot all: <text>
- *
- **/ 
-```
-### tell (per channel)
-```
-/** 
- * Description:
- *   Allows messages to be left for other users.
- *
- * Commands:
- *   simplebot: tell <nick> <text>
- *   messages?
- *
- **/ 
-```
+## Commands (see /scripts)
+- factoids (per channel)
+- karma (per channel agnostic)
+- seen (per channel)
+- all
+- tell (per channel)
+- ooo (only #lullabot)
 
 ## Integrations
 ### Github
@@ -96,46 +25,46 @@ Create a MongoLab database, making sure you tick the "experimental features". Yo
 
 Set the following environment variables.
 ```
-heroku config:add SIMPLEBOT_IRC_ROOMS="#room1,room2"
-heroku config:add SIMPLEBOT_IRC_SERVER="holmes.freenode.net"
-heroku config:add SIMPLEBOT_IRC_PORT=6697
-heroku config:add SIMPLEBOT_IRC_NICK="simplebot"
-heroku config:add SIMPLEBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
-heroku config:add SIMPLEBOT_MONGOPREFIX="simplebot_"
-herolu config:add SIMPLEBOT_GITHUB = "{\"justafish/test\": \"#bot\"}";
+heroku config:add LUBOT_IRC_ROOMS="#room1,room2"
+heroku config:add LUBOT_IRC_SERVER="holmes.freenode.net"
+heroku config:add LUBOT_IRC_PORT=6697
+heroku config:add LUBOT_IRC_NICK="simplebot"
+heroku config:add LUBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
+heroku config:add LUBOT_MONGOPREFIX="simplebot_"
+herolu config:add LUBOT_GITHUB = "{\"Lullabot/lubot\": \"#bot\"}";
 ```
 
-Edit simplebot.js to configure, then just push the repository to Heroku.
+Add the Heroku Scheduler app and add the command "rake dyno_ping" every 10 minutes to prevent your dyno from sleeping.
 
 ### Locally
 Set environment variables
 
 ```
-export SIMPLEBOT_IRC_ROOMS="#room1,#room2"
-export SIMPLEBOT_IRC_SERVER="holmes.freenode.net"
-export SIMPLEBOT_IRC_PORT=6697
-export SIMPLEBOT_IRC_NICK="simplebot"
-export SIMPLEBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
-export SIMPLEBOT_MONGOPREFIX="simplebot_"
-export SIMPLEBOT_GITHUB="{\"justafish/test\": \"#bot\"}";
+export LUBOT_IRC_ROOMS="#room1,#room2"
+export LUBOT_IRC_SERVER="holmes.freenode.net"
+export LUBOT_IRC_PORT=6697
+export LUBOT_IRC_NICK="lubot"
+export LUBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
+export LUBOT_MONGOPREFIX="lubot_"
+export LUBOT_GITHUB="{\"Lullabot/lubot\": \"#bot\"}";
 ```
 
 ```
-node simplebot.js
+node lubot.js
 ```
 
 ## Commands / Scripts
 Add these in to the /scripts directory
 
 ## Using the Brain
-See simplebot.js for detailed explanations.
+See lubot.js for detailed explanations.
 
 
 Example:
 
 ```
-bot.simplebot.brain.saveKV('sally', 'fish');
-bot.simplebot.brain.loadKV('sally', function(value) {
+bot.lubot.brain.saveKV('justafish', 'is my creator');
+bot.lubot.brain.loadKV('justafish', function(value) {
   console.log(value);
 });
 ```

@@ -1,12 +1,12 @@
 // Bot configuration.
 var config = {
   webPort: Number(process.env.PORT || 5000),
-  channels: process.env.SIMPLEBOT_IRC_ROOMS.split(","),
-  server: process.env.SIMPLEBOT_IRC_SERVER,
-  port: process.env.SIMPLEBOT_IRC_PORT,
-  botName: process.env.SIMPLEBOT_IRC_NICK,
-  mongoUrl: process.env.SIMPLEBOT_MONGODB,
-  mongoPrefix: process.env.SIMPLEBOT_MONGOPREFIX
+  channels: process.env.LUBOT_IRC_ROOMS.split(","),
+  server: process.env.LUBOT_IRC_SERVER,
+  port: process.env.LUBOT_IRC_PORT,
+  botName: process.env.LUBOT_IRC_NICK,
+  mongoUrl: process.env.LUBOT_MONGODB,
+  mongoPrefix: process.env.LUBOT_MONGOPREFIX
 };
 
 var express = require('express');

@@ -1,1 +1,1 @@
-web: node simplebot.js
+web: node lubot.js
