@@ -9,6 +9,12 @@
 module.exports = function(bot) {
   // Respond to seen? requests.
   bot.irc.addListener("message#", function(nick, to, text, message) {
+    // Remove bot name.
+    botText = bot.helpers.utils.startsBot(text);
+    if (botText !== false) {
+      text = botText;
+    }
+
     var cutText = bot.helpers.utils.startsWith('seen ', text);
     if (cutText !== false) {
       var re = /([^?]+)\??/;

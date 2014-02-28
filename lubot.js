@@ -86,11 +86,12 @@ bot.helpers.utils = {
    *   The string with the token cut out, or false if it wasn't found.
    */
   startsBot: function(text) {
-    var botText = this.startsWith(bot.irc.opt.nick + ': ', text);
-    if (botText === false) {
-      botText = this.startsWith(bot.irc.opt.nick + ' ', text);
+    var re = new RegExp(bot.irc.opt.nick + "(.*?) (.*)", "gi");
+    var matches = re.exec(text);
+    if (!bot.helpers.utils.empty(matches, 1) && !bot.helpers.utils.empty(matches, 2)) {
+      return matches[2]
     }
-    return botText;
+    return false;
   },
   /**
    * Finds if a string begins with another string, possibly prefixed by the
