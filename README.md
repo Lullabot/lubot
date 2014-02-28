@@ -32,7 +32,7 @@ heroku config:add LUBOT_IRC_NICK="simplebot"
 heroku config:add LUBOT_IRC_NICK_PW="password"
 heroku config:add LUBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
 heroku config:add LUBOT_MONGOPREFIX="simplebot_"
-heroku config:add LUBOT_GITHUB = "{\"Lullabot/lubot\": \"#bot\"}";
+heroku config:add LUBOT_GITHUB="{\"Lullabot/lubot\": \"#bot\"}";
 ```
 
 Add the Heroku Scheduler app and add the command "rake dyno_ping" every 10 minutes to prevent your dyno from sleeping.
