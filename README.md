@@ -8,6 +8,7 @@ Lubot is a JavaScript node.js IRC bot that's designed to run across multiple cha
 - all
 - tell (per channel)
 - ooo (only #lullabot)
+- pingtroll
 
 ## Integrations
 ### Github
