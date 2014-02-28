@@ -188,7 +188,7 @@ bot.helpers.utils = {
    * @return bool
    */
   empty: function(object, key) {
-    if (object !== null && object.hasOwnProperty(key) && object[key].length > 0) {
+    if (object !== null && object.hasOwnProperty(key)) {
       return false;
     }
     return true;
@@ -276,35 +276,6 @@ bot.brain = {
         collection.remove({key: key}, {w:1}, function(err, numberOfRemovedDocs) {
           db.close();
         });
-      });
-    }
-  },
-  /**
-   * Increment a number value stored in the Key/Value store.
-   * Negative numbers can also be used to decrement values.
-   *
-   * @param string key
-   * @param number amount
-   * @param (optional) string collection_name
-   *   If this item has been stored into it's own collection, provide the name here.
-   */
-  incKV: function(key, amount, collection_name) {
-    if (key !== null && typeof key === 'string' && amount !== null && typeof amount === 'number') {
-      this.mongoClient().connect(config.mongoUrl, function(err, db) {
-        if (err) throw err;
-        var collection_n = config.mongoPrefix + 'kv';
-        if (collection_name !== null && typeof collection_name === 'string') {
-          collection_n = config.mongoPrefix + collection_name;
-        }
-        var collection = db.collection(collection_n);
-        collection.update(
-          {key: key},
-          {$inc: {value: amount}},
-          {upsert: true},
-          function(err, object) {
-            db.close();
-          }
-        );
       });
     }
   },
@@ -454,7 +425,43 @@ bot.brain = {
         });
       });
     }
-  }
+  },
+  /**
+   * Increment a number value stored in the Key/Value store.
+   * Negative numbers can also be used to decrement values.
+   *
+   * @param string|object key or search object
+   * @param number amount
+   * @param (optional) string collection_name
+   *   If this item has been stored into it's own collection, provide the name here.
+   */
+  incValue: function(key, amount, collection_name) {
+    if (key !== null && amount !== null && typeof amount === 'number') {
+      this.mongoClient().connect(config.mongoUrl, function(err, db) {
+        if (err) throw err;
+        var collection_n = config.mongoPrefix + 'kv';
+        if (collection_name !== null && typeof collection_name === "string" && collection_name.length > 0) {
+          collection_n = config.mongoPrefix + collection_name;
+        }
+        var collection = db.collection(collection_n);
+        var search = {};
+        if (typeof key === 'string') {
+          search.key = key;
+        }
+        else if (typeof key === 'object') {
+          search = key;
+        }
+        collection.update(
+          search,
+          {$inc: {value: amount}},
+          {upsert: true},
+          function(err, object) {
+            db.close();
+          }
+        );
+      });
+    }
+  },
 };
 
 /**

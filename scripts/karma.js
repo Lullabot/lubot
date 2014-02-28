@@ -9,33 +9,47 @@
  *
  **/
 module.exports = function(bot) {
-  // Listens for ++
+  
   bot.irc.addListener('message#', function(nick, to, text, message) {
+    // Remove bot name.
+    botText = bot.helpers.utils.startsBot(text);
+    if (botText !== false) {
+      text = botText;
+    }
+
+    // ++
     var endsWithUp = bot.helpers.utils.endsWith('++', text);
     if (endsWithUp !== false && endsWithUp.length > 0) {
-      bot.brain.incKV(endsWithUp, 1, 'karma');
+      bot.brain.incValue({key: endsWithUp, channel: to}, 1, 'karma');
+    }
+    else {
+      // --
+      var endsWithDown = bot.helpers.utils.endsWith('--', text);
+      if (endsWithDown !== false && endsWithDown.length > 0) {
+        bot.brain.incValue({key: endsWithDown, channel: to}, -1, 'karma');
+      }
     }
   });
-  
-  // Listens for --
+
   bot.irc.addListener('message#', function(nick, to, text, message) {
-    var endsWithDown = bot.helpers.utils.endsWith('--', text);
-    if (endsWithDown !== false && endsWithDown.length > 0) {
-      bot.brain.incKV(endsWithDown, -1, 'karma');
-    }
-  });
-  
-  // Retrieves karma
-  bot.irc.addListener('message#', function(nick, to, text, message) {
-    var cutText = bot.helpers.utils.startsWith('karma ', text);
+    // Retrieves karma
+
+    // Remove bot name.
+    var cutText = bot.helpers.utils.startsWithBot('karma ', text);
     if (cutText !== false) {
+      // Remove question mark.
       var removeQM = bot.helpers.utils.endsWith('?', cutText);
       if (removeQM !== false) {
         cutText = removeQM;
       }
-      
-      bot.brain.loadKV(cutText, 'karma', function(value) {
-        bot.irc.say(to, cutText + ' has a karma of ' + value);
+
+      bot.brain.loadFromCollection('karma', {key: cutText, channel: to}, {}, function(docs) {
+        if (bot.helpers.utils.empty(docs, 0)) {
+          bot.irc.say(to, cutText + ' has a karma of 0');
+        }
+        else {
+          bot.irc.say(to, cutText + ' has a karma of ' + docs[0].value);
+        }
       });
     }
   });
