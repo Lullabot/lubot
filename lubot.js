@@ -125,7 +125,7 @@ bot.helpers.utils = {
    *   The string with the token cut out, or fale if it wasn't found
    */
   endsWith: function (token, text) {
-    var end = text.slice(0 - token.length);
+    var end = text.slice(-token.length);
     if (end === token) {
       var newText = text.slice(0, text.length - token.length);
       if (newText.length > 0) {
