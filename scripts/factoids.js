@@ -50,7 +50,11 @@ module.exports = function(bot) {
     if (factoid !== false) {
       bot.brain.loadFromCollection('factoids', {key: factoid, channel: to}, {}, function(docs) {
         if (docs.hasOwnProperty(0)) {
-          bot.irc.say(to, factoid + ' is ' + docs[0].factoid);
+          // Allow for the string !who in factoids to be replaced with the nick
+          // from the user making the query.
+          var message = docs[0].factoid;
+          message = message.replace(/\!who/gi, nick);
+          bot.irc.say(to, factoid + ' is ' + message);
         }
       });
     }
