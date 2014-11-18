@@ -15,6 +15,9 @@
  *   lubot: tacos are awesome
  *   tacos?
  *     > tacos are awesome
+ *   lubot: hello is <reply>Hi handsome
+ *   hello!
+ *     > Hi handsome
  *  lubot: factoid delete <key>
  *
  **/
@@ -62,7 +65,18 @@ module.exports = function(bot) {
           // from the user making the query.
           message = message.replace(/\!who/gi, nick);
 
-          response = factoid + ' ' + is_are + ' ' + message;
+          // Allow for <reply> style factoids.
+          var is_reply = (message.indexOf('<reply>') === 0) ? true : false;
+          message = message.replace('<reply>', '');
+
+          // Format our response.
+          if (is_reply === true) {
+            response = message;
+          }
+          else {
+            response = factoid + ' ' + is_are + ' ' + message;
+          }
+
           bot.irc.say(to, response);
         }
       });
