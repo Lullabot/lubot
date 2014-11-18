@@ -21,6 +21,8 @@
  *  lubot: factoid delete <key>
  *
  **/
+var util = require('util');
+
 module.exports = function(bot) {
   bot.irc.addListener('message#', function(nick, to, text, message) {
     // Remove bot name.
@@ -66,7 +68,7 @@ module.exports = function(bot) {
           message = message.replace(/\!who/gi, nick);
 
           // Allow for <reply> style factoids.
-          var is_reply = (message.indexOf('<reply>') === 0) ? true : false;
+          var is_reply = message.indexOf('<reply>') === 0;
           message = message.replace('<reply>', '');
 
           // Format our response.
@@ -74,7 +76,7 @@ module.exports = function(bot) {
             response = message;
           }
           else {
-            response = factoid + ' ' + is_are + ' ' + message;
+            response = util.format('%s %s %s', factoid, is_are, message);
           }
 
           bot.irc.say(to, response);
