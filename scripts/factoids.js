@@ -12,6 +12,9 @@
  *     > ericduran is jacketless
  *   lubot: ericduran!
  *     > ericduran is jacketless
+ *   lubot: tacos are awesome
+ *   tacos?
+ *     > tacos are awesome
  *  lubot: factoid delete <key>
  *
  **/
@@ -22,11 +25,12 @@ module.exports = function(bot) {
     if (botText !== false) {
       text = botText;
       
-      // Add factoids.
-      var re = /(.+?)\sis\s(.+)/;
+      // Add factoids, note that we also match the is|are that's used when
+      // setting a factoid so that we can respond correctly.
+      var re = /(.+?)\s(is|are)\s(.+)/;
       var matches = re.exec(text);
       if (!bot.helpers.utils.empty(matches, 1) && !bot.helpers.utils.empty(matches, 2)) {
-        bot.brain.upsertToCollection('factoids', {key: matches[1], channel: to}, {key: matches[1], channel: to, factoid: matches[2]});
+        bot.brain.upsertToCollection('factoids', {key: matches[1], channel: to}, {key: matches[1], channel: to, factoid: matches[3], is_are: matches[2]});
         bot.irc.say(to, nick + ': Okay!');
       }
     }
@@ -50,11 +54,16 @@ module.exports = function(bot) {
     if (factoid !== false) {
       bot.brain.loadFromCollection('factoids', {key: factoid, channel: to}, {}, function(docs) {
         if (docs.hasOwnProperty(0)) {
+          var response;
+          var message = docs[0].factoid;
+          // Was the factoid set using "is" or "are"?
+          var is_are = docs[0].is_are;
           // Allow for the string !who in factoids to be replaced with the nick
           // from the user making the query.
-          var message = docs[0].factoid;
           message = message.replace(/\!who/gi, nick);
-          bot.irc.say(to, factoid + ' is ' + message);
+
+          response = factoid + ' ' + is_are + ' ' + message;
+          bot.irc.say(to, response);
         }
       });
     }
