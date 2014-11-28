@@ -24,6 +24,10 @@
 var util = require('util');
 
 module.exports = function(bot) {
+
+  // Provide help for factoids command.
+  bot.help.add('factoids', 'Set factoids with "BOTNAME: Metal is great." or  "BOTNAME: cats are furry." or "BOTNAME: ping is <reply>WHAT?!". You can use the !who placeholder, it will be replaced with the nick of the user performing the query. Retrieve with "Robots?" or "BOTNAME: cheer!" Forget with "BOTNAME: delete factoid ping".');
+
   bot.irc.addListener('message#', function(nick, to, text, message) {
     // Remove bot name.
     botText = bot.helpers.utils.startsBot(text);

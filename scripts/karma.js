@@ -9,7 +9,10 @@
  *
  **/
 module.exports = function(bot) {
-  
+
+  // Provide help for karma command.
+  bot.help.add('karma', 'Keeps track of "karma" altered by "foo++" or "bar--". "BOTNAME: karma foo?" gives the current karma score.');
+
   bot.irc.addListener('message#', function(nick, to, text, message) {
     // Remove bot name.
     botText = bot.helpers.utils.startsBot(text);

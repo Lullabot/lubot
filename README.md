@@ -87,3 +87,16 @@ bot.lubot.brain.loadKV('justafish', function(value) {
   console.log(value);
 });
 ```
+
+## Using the Help API.
+See src/help.js for detailed documentation.
+
+This system allows each script to provide help text that document their available commands, and integrates with the "BOTNAME: help?" command to display help text.
+
+Example:
+
+```
+bot.help.add('all', 'Use the all command to send a message to everyone in the channel.');
+```
+
+This will allow for retrieval of this help text with `BOTNAME: help all?`.
