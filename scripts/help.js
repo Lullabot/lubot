@@ -9,8 +9,6 @@
  *     > Displays help text associated with <key>.
  *
  **/
-var util = require('util');
-
 module.exports = function(bot) {
 
   // Add some help text.
