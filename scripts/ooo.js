@@ -7,6 +7,10 @@
  *
  **/
 module.exports = function(bot) {
+
+  // Provide help for the ooo command.
+  bot.help.add('ooo', 'List everyone that is marked as being out-of-office today.');
+
   bot.irc.addListener("message#", function(nick, to, text, message) {
     if (text === 'ooo?' && to === '#lullabot') {
       var https = require('follow-redirects').https;

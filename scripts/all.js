@@ -8,6 +8,10 @@
  *
  **/
 module.exports = function(bot) {
+
+  // Provide help for the all command.
+  bot.help.add('all', 'Send a message to everyone in the channel with "all: <message>".');
+
   bot.irc.addListener("message#", function(nick, to, text, message) {
     var cutText = bot.helpers.utils.startsWithBot('all:', text);
     if (cutText !== false) {

@@ -7,6 +7,10 @@
  *
  **/
 module.exports = function(bot) {
+
+  // Provide help for the seen command.
+  bot.help.add('seen', 'If someone asks "seen SuperMan?", the bot will report the last time they\'ve been seen in the channel.');
+
   // Respond to seen? requests.
   bot.irc.addListener("message#", function(nick, to, text, message) {
     // Remove bot name.

@@ -8,6 +8,10 @@
  *
  **/
 module.exports = function(bot) {
+
+  // Provide help for the tell command.
+  bot.help.add('tell', 'Queue messages with "BOTNAME: tell SuperMan that his cape is awesome." Users will be notified they have queued messages when the recipient joins the channel. A user can retrieve their messages with "messages?".');
+
   // Listen for new messages.
   bot.irc.addListener("message#", function(nick, to, text, message) {
     botText = bot.helpers.utils.startsBot(text);
