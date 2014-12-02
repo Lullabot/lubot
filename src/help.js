@@ -48,4 +48,4 @@ Help.prototype.getSummary = function() {
   return keys.join(', ');
 }
 
-module.exports = Help;
+module.exports = new Help();
