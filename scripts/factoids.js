@@ -26,7 +26,7 @@ module.exports = function(bot) {
       var re = /(.+?)\sis\s(.+)/;
       var matches = re.exec(text);
       if (!bot.helpers.utils.empty(matches, 1) && !bot.helpers.utils.empty(matches, 2)) {
-        bot.brain.upsertToCollection('factoids', {key: matches[1].toLowerCase(), channel: to}, {key: matches[1].toLowerCase(), channel: to, factoid: matches[2].toLowerCase()});
+        bot.brain.upsertToCollection('factoids', {key: matches[1].toLowerCase(), channel: to}, {key: matches[1].toLowerCase(), channel: to, factoid: matches[2]});
         bot.irc.say(to, nick + ': Okay!');
       }
     }
