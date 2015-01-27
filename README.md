@@ -11,7 +11,7 @@ Lubot is a JavaScript node.js IRC bot that's designed to run across multiple cha
 - pingtroll
 
 ## Integrations
-### Github
+### GitHub
 Set your webhook URL to "http://&lt;your-domain&gt;/github" and export a JSON object into your settings with repo/channel mappings (see "Running"). Currently shows Issue and Pull Request actions.
 
 ```json
