@@ -11,7 +11,7 @@ Lubot is a JavaScript node.js IRC bot that's designed to run across multiple cha
 - pingtroll
 
 ## Integrations
-### Github
+### GitHub
 Set your webhook URL to "http://&lt;your-domain&gt;/github" and export a JSON object into your settings with repo/channel mappings (see "Running"). Currently shows Issue and Pull Request actions.
 
 ```json
@@ -39,7 +39,20 @@ heroku config:add LUBOT_GITHUB="{\"Lullabot/lubot\": \"#bot\"}";
 Add the Heroku Scheduler app and add the command "rake dyno_ping" every 10 minutes to prevent your dyno from sleeping.
 
 ### Locally
-Set environment variables
+
+Install the required npm packages.
+
+```
+npm install
+```
+
+You'll also need to make sure MongoDB is running. If you've got it installed already you can run the following command which will start a mongodb server in the background.
+
+```
+mongod --fork --dbpath=./data/db --logpath ./data/logfile --logappend
+```
+
+Set the environment variables that the bot uses for configuration.
 
 ```
 export LUBOT_IRC_ROOMS="#room1,#room2"
@@ -47,10 +60,13 @@ export LUBOT_IRC_SERVER="holmes.freenode.net"
 export LUBOT_IRC_PORT=6697
 export LUBOT_IRC_NICK="lubot"
 export LUBOT_IRC_NICK_PW="password"
-export LUBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
+# mongodb://<username>:<password>@<host>:<port>/<database>
+export LUBOT_MONGODB="mongodb://localhost/lubot"
 export LUBOT_MONGOPREFIX="lubot_"
 export LUBOT_GITHUB="{\"Lullabot/lubot\": \"#bot\"}";
 ```
+
+Finally, start up the bot.
 
 ```
 node lubot.js
@@ -71,3 +87,16 @@ bot.lubot.brain.loadKV('justafish', function(value) {
   console.log(value);
 });
 ```
+
+## Using the Help API.
+See src/help.js for detailed documentation.
+
+This system allows each script to provide help text that document their available commands, and integrates with the "BOTNAME: help?" command to display help text.
+
+Example:
+
+```
+bot.help.add('all', 'Use the all command to send a message to everyone in the channel.');
+```
+
+This will allow for retrieval of this help text with `BOTNAME: help all?`.

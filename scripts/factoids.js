@@ -12,18 +12,31 @@
  *     > ericduran is jacketless
  *   lubot: ericduran!
  *     > ericduran is jacketless
+ *   lubot: tacos are awesome
+ *   tacos?
+ *     > tacos are awesome
+ *   lubot: hello is <reply>Hi handsome
+ *   hello!
+ *     > Hi handsome
  *  lubot: factoid delete <key>
  *
  **/
+var util = require('util');
+
 module.exports = function(bot) {
+
+  // Provide help for factoids command.
+  bot.help.add('factoids', 'Set factoids with "BOTNAME: Metal is great." or  "BOTNAME: cats are furry." or "BOTNAME: ping is <reply>WHAT?!". You can use the !who placeholder, it will be replaced with the nick of the user performing the query. Retrieve with "Robots?" or "BOTNAME: cheer!" Forget with "BOTNAME: delete factoid ping".');
+
   bot.irc.addListener('message#', function(nick, to, text, message) {
     // Remove bot name.
     botText = bot.helpers.utils.startsBot(text);
     if (botText !== false) {
       text = botText;
       
-      // Add factoids.
-      var re = /(.+?)\sis\s(.+)/;
+      // Add factoids, note that we also match the is|are that's used when
+      // setting a factoid so that we can respond correctly.
+      var re = /(.+?)\s(is|are)\s(.+)/;
       var matches = re.exec(text);
       if (!bot.helpers.utils.empty(matches, 1) && !bot.helpers.utils.empty(matches, 2)) {
         bot.brain.upsertToCollection('factoids', {key: matches[1].toLowerCase(), channel: to}, {key: matches[1].toLowerCase(), channel: to, factoid: matches[2]});
@@ -50,7 +63,27 @@ module.exports = function(bot) {
     if (factoid !== false) {
       bot.brain.loadFromCollection('factoids', {key: factoid.toLowerCase(), channel: to}, {}, function(docs) {
         if (docs.hasOwnProperty(0)) {
-          bot.irc.say(to, factoid + ' is ' + docs[0].factoid);
+          var response;
+          var message = docs[0].factoid;
+          // Was the factoid set using "is" or "are"?
+          var is_are = docs[0].is_are;
+          // Allow for the string !who in factoids to be replaced with the nick
+          // from the user making the query.
+          message = message.replace(/\!who/gi, nick);
+
+          // Allow for <reply> style factoids.
+          var is_reply = message.indexOf('<reply>') === 0;
+          message = message.replace('<reply>', '');
+
+          // Format our response.
+          if (is_reply === true) {
+            response = message;
+          }
+          else {
+            response = util.format('%s %s %s', factoid, is_are, message);
+          }
+
+          bot.irc.say(to, response);
         }
       });
     }
