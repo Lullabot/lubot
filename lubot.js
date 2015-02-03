@@ -505,7 +505,7 @@ bot.brain.mongoClient().connect(config.mongoUrl, function(err, db) {
 });
 
 // Load the help API.
-bot.help = require('./src/help.js');
+bot.help = require('./lib/help.js');
 
 // Load Scripts
 require("fs").readdirSync("./scripts").forEach(function(file) {
