@@ -46,7 +46,7 @@ Install the required npm packages.
 npm install
 ```
 
-You'll also need to make sure MongoDB is running. If you've got it installed already you can run the following command which will start a mongodb server in the background.
+You'll also need to make sure MongoDB is running. If you've got it installed already you can run the following command which will start a mongodb server in the background.  Make sure you've created the ./data/db and ./data/logfile directories.
 
 ```
 mongod --fork --dbpath=./data/db --logpath ./data/logfile --logappend
