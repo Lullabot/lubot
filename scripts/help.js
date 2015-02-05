@@ -15,7 +15,7 @@ module.exports = function(bot) {
   bot.help.add('help', "That's awfully meta.");
 
   // Add a listener for messages in the channel.
-  bot.irc.addListener('message#', function(nick, to, text, message) {
+  bot.registerIntentProcessor(function helpCallback(nick, to, text, message, complete) {
     // Remove bot name.
 
     botText = bot.helpers.utils.startsBot(text);
@@ -28,6 +28,7 @@ module.exports = function(bot) {
         var summary = 'Detailed information is available with "BOTNAME: help <feature>?" where <feature> is one of: ';
         summary = summary + bot.help.getSummary();
         bot.irc.say(to, summary);
+        complete(true);
       }
 
       // If asking for a specific help message.
@@ -38,8 +39,10 @@ module.exports = function(bot) {
         // Lets see if we have some help text for this key.
         var message = bot.help.get(key);
         bot.irc.say(to, message);
+        complete(true);
       }
     }
 
+    complete();
   });
 };

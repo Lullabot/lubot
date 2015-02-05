@@ -13,7 +13,13 @@ module.exports = function(bot) {
   // Provide help for karma command.
   bot.help.add('karma', 'Keeps track of "karma" altered by "foo++" or "bar--". "BOTNAME: karma foo?" gives the current karma score.');
 
-  bot.irc.addListener('message#', function(nick, to, text, message) {
+  /**
+   * Increase/decrease karma for the given query.
+   *
+   * This is a really simple action so instead of building an intent object and
+   * registering a handler we just do the increment or decrement and save here.
+   */
+  bot.registerIntentProcessor(function karmaSetCallback(nick, to, text, message, complete) {
     // Remove bot name.
     botText = bot.helpers.utils.startsBot(text);
     if (botText !== false) {
@@ -24,19 +30,24 @@ module.exports = function(bot) {
     var endsWithUp = bot.helpers.utils.endsWith('++', text);
     if (endsWithUp !== false && endsWithUp.length > 0) {
       bot.brain.incValue({key: endsWithUp, channel: to}, 1, 'karma');
+      complete(true);
     }
     else {
       // --
       var endsWithDown = bot.helpers.utils.endsWith('--', text);
       if (endsWithDown !== false && endsWithDown.length > 0) {
         bot.brain.incValue({key: endsWithDown, channel: to}, -1, 'karma');
+        complete(true);
       }
     }
+
+    complete();
   });
 
-  bot.irc.addListener('message#', function(nick, to, text, message) {
-    // Retrieves karma
-
+  /**
+   * Retrieve karma for the given query.
+   */
+  bot.registerIntentProcessor(function karmaGetCallback(nick, to, text, message, complete) {
     // Remove bot name.
     var cutText = bot.helpers.utils.startsWithBot('karma ', text);
     if (cutText !== false) {
@@ -49,11 +60,15 @@ module.exports = function(bot) {
       bot.brain.loadFromCollection('karma', {key: cutText, channel: to}, {}, function(docs) {
         if (bot.helpers.utils.empty(docs, 0)) {
           bot.irc.say(to, cutText + ' has a karma of 0');
+          complete(true);
         }
         else {
           bot.irc.say(to, cutText + ' has a karma of ' + docs[0].value);
+          complete(true);
         }
       });
     }
+
+    complete();
   });
 };

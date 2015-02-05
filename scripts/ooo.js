@@ -11,7 +11,7 @@ module.exports = function(bot) {
   // Provide help for the ooo command.
   bot.help.add('ooo', 'List everyone that is marked as being out-of-office today.');
 
-  bot.irc.addListener("message#", function(nick, to, text, message) {
+  bot.registerIntentProcessor(function oooCallback(nick, to, text, message, complete) {
     if (text === 'ooo?' && to === '#lullabot') {
       var https = require('follow-redirects').https;
       var options = {
@@ -37,8 +37,11 @@ module.exports = function(bot) {
             say.push(obj[i].name);
           }
           bot.irc.say(to, say.join(', '));
+          complete(true);
         });
       });
     }
+
+    complete();
   });
 };

@@ -13,7 +13,7 @@ module.exports = function(bot) {
   bot.help.add('tell', 'Queue messages with "BOTNAME: tell SuperMan that his cape is awesome." Users will be notified they have queued messages when the recipient joins the channel. A user can retrieve their messages with "messages?".');
 
   // Listen for new messages.
-  bot.irc.addListener("message#", function(nick, to, text, message) {
+  bot.registerIntentProcessor(function tellSetCallback(nick, to, text, message, complete) {
     botText = bot.helpers.utils.startsBot(text);
     if (botText !== false) {
       text = botText;
@@ -25,14 +25,17 @@ module.exports = function(bot) {
         if (matches !== null && matches.hasOwnProperty(1) && matches[1].length > 0 && matches.hasOwnProperty(2) && matches[2].length > 0) {
           var message = '<' + nick + '> ' + matches[2]
           bot.brain.saveToCollection('tell', {nick: matches[1], channel: to, from: nick, message: matches[2]});
-          bot.irc.say(to, nick + ": I'll pass that on when " + matches[1] + " is around.")
+          bot.irc.say(to, nick + ": I'll pass that on when " + matches[1] + " is around.");
+          complete(true);
         }
       }
     }
+
+    complete();
   });
 
   // Tell a user they have a new message.
-  bot.irc.addListener('join', function (channel, nick, message) {
+  bot.registerIntentProcessor(function tellJoinCallback(nick, to, text, message, complete) {
     bot.irc.whois(nick, function(info) {
       var accounts = [{nick: nick}];
       if (info.account !== undefined && info.account !== null) {
@@ -45,8 +48,11 @@ module.exports = function(bot) {
         else if (docs.length > 1) {
           bot.irc.say(channel, nick + ': I have ' + docs.length + ' messages for you. Type "messages?" to receive them.')
         }
+        complete(true);
       });
     });
+
+    complete();
   });
 
   // Tell a user they have a new message.
@@ -71,7 +77,7 @@ module.exports = function(bot) {
   });
 
   // Deliver messages.
-  bot.irc.addListener("message#", function(nick, to, text, message) {
+  bot.registerIntentProcessor(function tellDeliverMessage(nick, to, text, message, complete) {
     if (text === 'messages?') {
       bot.irc.whois(nick, function(info) {
         var accounts = [{nick: nick}];
@@ -89,7 +95,11 @@ module.exports = function(bot) {
             bot.irc.say(to, nick + ': I have no messages for you.');
           }
         });
+
+        complete(true);
       });
     }
+
+    complete();
   });
 };

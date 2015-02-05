@@ -12,7 +12,7 @@ module.exports = function(bot) {
   // Provide help for the all command.
   bot.help.add('all', 'Send a message to everyone in the channel with "all: <message>".');
 
-  bot.irc.addListener("message#", function(nick, to, text, message) {
+  bot.registerIntentProcessor(function karmaSetCallback(nick, to, text, message, complete) {
     var cutText = bot.helpers.utils.startsWithBot('all:', text);
     if (cutText !== false) {
       var replyText = '';
@@ -24,6 +24,9 @@ module.exports = function(bot) {
       }
       replyText += ': ' + cutText;
       bot.irc.say(to, replyText);
+      complete(true);
     }
+
+    complete();
   });
 };

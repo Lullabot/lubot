@@ -6,8 +6,16 @@ var config = {
   port: process.env.LUBOT_IRC_PORT,
   botName: process.env.LUBOT_IRC_NICK,
   mongoUrl: process.env.LUBOT_MONGODB,
-  mongoPrefix: process.env.LUBOT_MONGOPREFIX
+  mongoPrefix: process.env.LUBOT_MONGOPREFIX,
+  witAccessKey: process.env.LUBOT_WIT_ACCESS
 };
+
+// Load flow control library.
+var Flow = require('node.flow');
+var flow = new Flow();
+
+// Load the Wit.AI library.
+var wit = require('node-wit');
 
 if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
   config.botPassword = process.env.LUBOT_IRC_NICK_PW;
@@ -25,9 +33,11 @@ app.get('/', function(req, res){
 });
 app.listen(config.webPort);
 
-// Intialise the bot.
+// Initialize the bot.
 var bot = {
-  helpers: {}
+  helpers: {},
+  _intentProcessors: [],
+  _intentHandlers: []
 };
 
 // Connect to IRC.
@@ -49,6 +59,144 @@ bot.irc.setMaxListeners(50);
 // Catch IRC errors.
 bot.irc.addListener('error', function(message) {
     console.log('error: ', message);
+});
+
+/**
+ * Register an intent processor with the bot.
+ *
+ * Intent processors are functions that are called anytime a new message
+ * is received either directly to the bot, or in a channel. Each registered
+ * processor gets a chance to parse a message and declare an intent for the
+ * message.
+ *
+ * Callback functions are passed the following arguments.
+ * - nick
+ * - to
+ * - text
+ * - message
+ * - setIntent: A function that should be called in order to register an intent
+ *   to handle message. You must pass an intent object to the setIntent
+ *   function.
+ *
+ * Intent objects have the following keys, plus any additional processor
+ * specific keys:
+ * -  _text: is the message that was passed in to the handler
+ * - intent: is a string representation of the intent, this should also map to a
+ *   known intent handler
+ * - entites: is an array of key value pairs that the intent processor wishes to
+ *   pass on to the intent handler
+ * - confidence: is a float, 0 to 1 that represents the level of confidence the
+ *   intent processor has that it has correctly determined the intent of the
+ *   message.
+ *
+ * Example:
+ * @code
+ * {
+ *   "_text": "tacos are awesome",
+ *   "intent": "factoid",
+ *   "entities": {
+ *     "query": [{
+ *       "value": "tacos",
+ *     }],
+ *     "value": [{
+ *       "value": "are awesome"
+ *     }]
+ *   },
+ *   "confidence": 0.62
+ * }
+ * @encode
+ *
+ * @param callback
+ */
+bot.registerIntentProcessor = function( callback) {
+  this._intentProcessors.push(callback);
+};
+
+/**
+ * Register an intent handler.
+ *
+ * @param string intent
+ *   The unique ID of the intent for which this handler should respond.
+ * @param function callback
+ *   The function to call when a message with the named intent is encountered.
+ *   Callback functions are passed the following arguments:
+ *   - intent: An intent object. See bot.registerIntentProcessor for more info.
+ *   - nick: the nickname of the user who posted the message.
+ *   - to: the channel, or individual to whom any response should be directed.
+ *
+ *  Callback functions can, and should, respond to messages by posting to the
+ *  the channel on behalf of the bot using the bot.irc.say() function. However
+ *  it is also okay for a callback to simply do some internal processing like
+ *  saving data to a database and not respond. In most cases though you'll
+ *  probably want to at least acknowledge to the user that you've handled their
+ *  message.
+ */
+bot.registerIntentHandler = function(intent, callback) {
+  this._intentHandlers[intent] = callback;
+};
+
+/**
+ * Register a message# listener with the node IRC bot.
+ *
+ * Whenever a message is received loop through all registered intent processors
+ * and give each the opportunity to set an intent object for the message. If
+ * one does, then call the appropriate intent handler and allow it to do it's
+ * thing.
+ *
+ * If, after looping through all intent processors, none sets an intent object
+ * dispatch a request to the Wit.ai processor to see if it can determine an
+ * intent for the message. If it does, see if we can use the returned intent
+ * object to call a handler.
+ */
+bot.irc.addListener("message#", function(nick, to, text, message) {
+  // Loop through each intent processor and register them with the flow
+  // controller. Once they are registered we can run them all in parallel until
+  // either one of them returns an intent, or they all complete without
+  // returning an intent.
+  bot._intentProcessors.forEach(function(callback) {
+    flow.parallel(callback, nick, to, text, message);
+  });
+
+  // Set an endpoint for all parallel tasks.
+  flow.join();
+
+  // Deal with the aggregate results of all our callbacks. Any callback that
+  // was successful should have called its complete() function with an argument
+  // of true. Those results are aggregated together and passed to the callback
+  // function here.
+  flow.end(function(results) {
+    if (typeof results[0] !== 'undefined' && typeof results[0][0].intent === 'string') {
+      // Make the results returned from node-flow easier to grok.
+      var intent = results[0][0];
+
+      // Dispatch to the intent handler.
+      if (typeof bot._intentHandlers[intent.intent] == 'function') {
+        bot._intentHandlers[intent.intent](intent, nick, to);
+      }
+    }
+    else {
+      // If no response was received, and the bot is addressed we can dispatch
+      // to the AI parser. We only dispatch to the AI if the bot was addressed
+      // directly, at least for now this keeps request volume a bit lower.
+      if (typeof config.witAccessKey === 'string') {
+        var botText = bot.helpers.utils.startsBot(text);
+        if (botText !== false) {
+          text = botText;
+
+          wit.captureTextIntent(config.witAccessKey, text, function (err, res) {
+            if (err) console.log("Error: ", err);
+
+            // Dispatch to the intent handler.
+            res.outcomes.forEach(function (intention) {
+              if (typeof bot._intentHandlers[intention.intent] == 'function') {
+                bot._intentHandlers[intention.intent](intention, nick, to);
+              }
+            });
+          });
+        }
+      }
+    }
+  });
 });
 
 /**
@@ -505,7 +653,7 @@ bot.brain.mongoClient().connect(config.mongoUrl, function(err, db) {
 });
 
 // Load the help API.
-bot.help = require('./src/help.js');
+bot.help = require('./lib/help.js');
 
 // Load Scripts
 require("fs").readdirSync("./scripts").forEach(function(file) {

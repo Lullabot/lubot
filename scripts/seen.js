@@ -12,7 +12,7 @@ module.exports = function(bot) {
   bot.help.add('seen', 'If someone asks "seen SuperMan?", the bot will report the last time they\'ve been seen in the channel.');
 
   // Respond to seen? requests.
-  bot.irc.addListener("message#", function(nick, to, text, message) {
+  bot.registerIntentProcessor(function seenCallback(nick, to, text, message, complete) {
     // Remove bot name.
     botText = bot.helpers.utils.startsBot(text);
     if (botText !== false) {
@@ -33,7 +33,10 @@ module.exports = function(bot) {
             bot.irc.say(to, 'Sorry, I haven\'t seen ' + matches[1]);
           }
         });
+        complete(true);
       }
     }
+
+    complete();
   });
 };
