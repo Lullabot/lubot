@@ -68,7 +68,7 @@ bot.helpers.utils = {
    */
   startsWith: function(token, text) {
     var start = text.slice(0, token.length);
-    if (start === token) {
+    if (start.toLowerCase() === token.toLowerCase()) {
       newText = text.slice(token.length);
       if (newText.length > 0) {
         return newText;
@@ -83,12 +83,12 @@ bot.helpers.utils = {
    *   The string to search in
    *
    * @return string|bool
-   *   The string with the token cut out, or false if it wasn't found.
+   *   The string with the bot name cut out, or false if it wasn't found.
    */
   startsBot: function(text) {
-    var re = new RegExp(bot.irc.opt.nick + "(.*?) (.*)", "gi");
+    var re = new RegExp(bot.irc.opt.nick + "(.+?) (.+)", "gi");
     var matches = re.exec(text);
-    if (!bot.helpers.utils.empty(matches, 1) && !bot.helpers.utils.empty(matches, 2)) {
+    if (matches) {
       return matches[2]
     }
     return false;
