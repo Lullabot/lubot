@@ -6,7 +6,7 @@ module.exports = function(bot, app) {
   var githubConfig = JSON.parse(process.env.LUBOT_GITHUB);
   app.post('/github', function(request, response) {
     if (payload !== null) {
-      var payload = JSON.parse(request.body.payload);
+      var payload = request.body;
       if (payload.action !== null) {
         var repo = payload.repository.full_name;
         if (typeof githubConfig[repo] === 'string') {
