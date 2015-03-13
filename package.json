@@ -1,35 +1,33 @@
 {
   "name": "lubot",
   "version": "0.0.1",
-
-  "author": ["justafish"],
-
+  "author": [
+    "justafish"
+  ],
   "keywords": [
     "irc",
     "bot"
   ],
-
   "description": "A helpful IRC robot for your Company",
-
-  "licenses": [{
-    "type": "MIT",
-    "url": "https://github.com/github/hubot/raw/master/LICENSE"
-  }],
-
-  "repository" : {
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/github/hubot/raw/master/LICENSE"
+    }
+  ],
+  "repository": {
     "type": "git",
     "url": "https://github.com/lullabot/lubot.git"
   },
-
   "dependencies": {
     "irc": "0.3.6",
     "mongodb": "1.4.0-rc7",
     "follow-redirects": "0.0.3",
-    "express": "3.4.7"
+    "express": "3.4.7",
+    "node-uuid": "^1.4.3"
   },
-
   "engines": {
     "node": ">= 0.8.x",
-    "npm":  ">= 1.1.x"
+    "npm": ">= 1.1.x"
   }
 }
