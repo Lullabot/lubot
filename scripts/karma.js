@@ -44,16 +44,16 @@ module.exports = function(bot) {
       var removeQM = bot.helpers.utils.endsWith('?', cutText);
       if (removeQM !== false) {
         cutText = removeQM;
-      }
 
-      bot.brain.loadFromCollection('karma', {key: cutText, channel: to}, {}, function(docs) {
-        if (bot.helpers.utils.empty(docs, 0)) {
-          bot.irc.say(to, cutText + ' has a karma of 0');
-        }
-        else {
-          bot.irc.say(to, cutText + ' has a karma of ' + docs[0].value);
-        }
-      });
+        bot.brain.loadFromCollection('karma', {key: cutText, channel: to}, {}, function(docs) {
+          if (bot.helpers.utils.empty(docs, 0)) {
+            bot.irc.say(to, cutText + ' has a karma of 0');
+          }
+          else {
+            bot.irc.say(to, cutText + ' has a karma of ' + docs[0].value);
+          }
+        });
+      }
     }
   });
 };
