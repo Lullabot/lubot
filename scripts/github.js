@@ -14,7 +14,12 @@ module.exports = function(bot, app) {
           var channel = githubConfig[repo];
           // Issues
           if (typeof payload.issue !== 'undefined') {
-            bot.irc.say(channel, '[ ' + ghuser + ' ' + payload.action + ' issue #' + payload.issue.number + ': ' + payload.issue.title + ' ' + payload.issue.html_url + ' ]')
+            if ((payload.action == 'labeled' && payload.label.name == "needs review") || (payload.action == 'unlabeled'  && payload.label.name == "needs review")) {
+              bot.irc.say(channel, '[ ' + ghuser + ' ' + payload.action + ' under review '  + ' issue #' + payload.issue.number + ': ' + payload.issue.title + ' ' + payload.issue.html_url + ' ]')
+            }
+            else if (payload.action == 'created' || payload.action == 'closed' || payload.action == 'reopened') {
+              bot.irc.say(channel, '[ ' + ghuser + ' ' + payload.action + ' issue #' + payload.issue.number + ': ' + payload.issue.title + ' ' + payload.issue.html_url + ' ]')
+            }
           }
           // Pull Requests
           else if (typeof payload.pull_request !== 'undefined') {
