@@ -93,6 +93,22 @@ bot.helpers.utils = {
     }
     return false;
   },
+  stripUpKarma: function(text) {
+    var re = new RegExp("([A-Za-z]{1,})(?=\\+\\+)");
+    var matches = re.exec(text);
+    if (matches) {
+      return(matches[1]);
+    }
+    return false;
+  },
+  stripDownKarma: function(text) {
+    var re = new RegExp("([A-Za-z]{1,})(?=\\-\\-)");
+    var matches = re.exec(text);
+    if (matches) {
+      return(matches[1]);
+    }
+    return false;
+  },
   /**
    * Finds if a string begins with another string, possibly prefixed by the
    * bot name.
@@ -445,7 +461,7 @@ bot.brain = {
    * @param (optional) string collection_name
    *   If this item has been stored into it's own collection, provide the name here.
    */
-  incValue: function(key, amount, collection_name) {
+  incValue: function(key, amount, collection_name, success) {
     if (key !== null && amount !== null && typeof amount === 'number') {
       this.mongoClient().connect(config.mongoUrl, function(err, db) {
         if (err) throw err;
@@ -461,14 +477,24 @@ bot.brain = {
         else if (typeof key === 'object') {
           search = key;
         }
-        collection.update(
+        collection.findAndModify(
           search,
-          {$inc: {value: amount}},
-          {upsert: true},
-          function(err, object) {
-            db.close();
+          [],
+          { $inc: { value: amount }},
+          { new: true ,
+            upsert: true,
+            w: 1
+          },
+          function(err, result) {
+            if (err) {
+              console.log("piss poor: " + err);
+            }
+            else {
+              db.close();
+              success(result);
+            }
           }
-        );
+       );
       });
     }
   },

@@ -21,31 +21,18 @@ module.exports = function(bot) {
     }
 
     // ++
-    var endsWithUp = bot.helpers.utils.endsWith('++', text);
-    if (endsWithUp !== false && endsWithUp.length > 0) {
-      bot.brain.incValue({key: endsWithUp, channel: to}, 1, 'karma');
-      bot.brain.loadFromCollection('karma', {key: endsWithUp, channel: to}, {}, function(docs) {
-        if (bot.helpers.utils.empty(docs, 0)) {
-          bot.irc.say(to, endsWithUp + ' has a karma of 0');
-        }
-        else {
-          bot.irc.say(to, endsWithUp + ' has a karma of ' + docs[0].value);
-        }
+    var userUp = bot.helpers.utils.stripUpKarma(text);
+    if (userUp) {
+      bot.brain.incValue({key: userUp, channel: to}, 1, 'karma', function(inc) {
+        bot.irc.say(to, userUp + ' has a karma of ' + inc.value);
       });
-
     }
     else {
-      // --
-      var endsWithDown = bot.helpers.utils.endsWith('--', text);
-      if (endsWithDown !== false && endsWithDown.length > 0) {
-        bot.brain.incValue({key: endsWithDown, channel: to}, -1, 'karma');
-        bot.brain.loadFromCollection('karma', {key: endsWithDown, channel: to}, {}, function(docs) {
-        if (bot.helpers.utils.empty(docs, 0)) {
-          bot.irc.say(to, endsWithDown + ' has a karma of 0');
-        }
-        else {
-          bot.irc.say(to, endsWithDown + ' has a karma of ' + docs[0].value);
-        }
+    // --
+      var userDown = bot.helpers.utils.stripDownKarma(text);
+      if (userDown) {
+        bot.brain.incValue({key: userDown, channel: to}, -1, 'karma', function(inc) {
+          bot.irc.say(to, userDown + ' has a karma of ' + inc.value);
         });
       }
     }
