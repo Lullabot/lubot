@@ -534,8 +534,8 @@ bot.brain.mongoClient().connect(config.mongoUrl, function(err, db) {
 bot.help = require('./lib/help.js');
 
 // Load Scripts
-require("fs").readdirSync("./scripts").forEach(function(file) {
+require("fs").readdirSync("./scripts/autorun").forEach(function(file) {
   if (bot.helpers.utils.endsWith(".js", file) !== false) {
-    require("./scripts/" + file)(bot, app);
+    require("./scripts/autorun/" + file)(bot, app);
   }
 });
