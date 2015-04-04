@@ -11,7 +11,6 @@ module.exports = function(bot) {
 
   // Respond to build results.
   bot.irc.addListener("message#", function(nick, to, text, message) {
-    console.log("nick: " + nick);
     // Remove bot name.
     botText = bot.helpers.utils.startsBot(text);
     if (botText !== false) {
