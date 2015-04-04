@@ -36,7 +36,9 @@ bot.irc = new irc.Client(config.server, config.botName, {
   channels: config.channels,
   port: config.port,
   secure: true,
-  stripColors: true
+  stripColors: true,
+  floodProtection: true,
+  floodProtectionDelay: 1000
 });
 bot.irc.once("registered", function(channel, who) {
   console.log('Connected to ' + config.server);
@@ -487,7 +489,7 @@ bot.brain = {
           },
           function(err, result) {
             if (err) {
-              console.log("piss poor: " + err);
+              console.err(err);
             }
             else {
               db.close();
