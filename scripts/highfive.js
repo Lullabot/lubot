@@ -22,7 +22,7 @@ module.exports = function(bot) {
         bot.irc.action(to, 'highfives lullajenky');
       }
       else if (text.indexOf("FAIL") > -1) {
-        bot.irc.action(to, nick + "weeps uncontrollably");
+        bot.irc.action(to, "weeps uncontrollably");
       }
     }
   });
