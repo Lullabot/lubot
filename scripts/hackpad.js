@@ -52,23 +52,27 @@ module.exports = function(bot) {
         }
 
         var cutText = bot.helpers.utils.startsWith('hackpad ', text);
-        var options = {site: config.hackpadSite}; 
-        var client = new Hackpad(config.hackpadKey, config.hackpadSecret, options);
-        var searchParams = cutText.replace(/^\s+|\s+$/g,"").split(/\s*,\s*/);
         
-        client.search(searchParams[0], searchParams[1], searchParams[2], function(err, result) {
-          if(err) {
-            bot.irc.say(to, JSON.stringify(err));
-          }
-          else {
-            for (var key in result) {
-              if (result.hasOwnProperty(key)) {
-                var obj = result[key];
-                bot.irc.say(nick, obj.title + ' - https://' + config.hackpadSite + '.hackpad.com/' + obj.id);
+        if (cutText !== false) {
+          var options = {site: config.hackpadSite}; 
+          var client = new Hackpad(config.hackpadKey, config.hackpadSecret, options);
+          var searchParams = cutText.replace(/^\s+|\s+$/g,"").split(/\s*,\s*/);
+        
+
+          client.search(searchParams[0], searchParams[1], searchParams[2], function(err, result) {
+            if(err) {
+              bot.irc.say(to, JSON.stringify(err));
+            }
+            else {
+              for (var key in result) {
+                if (result.hasOwnProperty(key)) {
+                  var obj = result[key];
+                  bot.irc.say(nick, obj.title + ' - https://' + config.hackpadSite + '.hackpad.com/' + obj.id);
+                }
               }
             }
-          }
-        });
+          });
+        }
       });
     }
     else {
