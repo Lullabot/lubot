@@ -6,7 +6,8 @@ var config = {
   port: process.env.LUBOT_IRC_PORT,
   botName: process.env.LUBOT_IRC_NICK,
   mongoUrl: process.env.LUBOT_MONGODB,
-  mongoPrefix: process.env.LUBOT_MONGOPREFIX
+  mongoPrefix: process.env.LUBOT_MONGOPREFIX,
+  secureToken: process.env.LUBOT_POST_TOKEN
 };
 
 if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
@@ -22,6 +23,14 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.get('/', function(req, res){
   res.send('Hello, world!');
+});
+app.post('/drupalizeme', function(request, response) {
+  if (request.body !== null && request.body.token == config.secureToken && request.body.channel !== null) {
+    var message = request.body.message;
+    bot.irc.say(request.body.channel, message);
+    response.send(200);
+  }
+  return true;
 });
 app.listen(config.webPort);
 
