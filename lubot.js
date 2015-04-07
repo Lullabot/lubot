@@ -24,7 +24,7 @@ app.use(express.urlencoded());
 app.get('/', function(req, res){
   res.send('Hello, world!');
 });
-app.post('/drupalizeme', function(request, response) {
+app.post('/post0r', function(request, response) {
   if (request.body !== null && request.body.token == config.secureToken && request.body.channel !== null) {
     var message = request.body.message;
     bot.irc.say(request.body.channel, message);
