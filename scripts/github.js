@@ -22,7 +22,7 @@ module.exports = function(bot, app) {
             }
           }
           // Wiki Info
-          if (typeof payload.pages[0].action !== 'undefined') {
+          if (typeof payload.pages !== 'undefined') {
             bot.irc.say(channel, '[ gh: ' + ghuser + ' ' + payload.pages[0].action + ' ' + payload.pages[0].page_name + ' - ' + payload.pages[0].html_url + ' ]')
           }
           // Pull Requests
