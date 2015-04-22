@@ -27,7 +27,7 @@ module.exports = function(bot, app) {
           }
           // Pull Requests
           else if (typeof payload.pull_request !== 'undefined') {
-            bot.irc.say(channel, '[ ' + payload.sender.login + ' ' + payload.action + ' pull request #' + payload.pull_request.number + ': ' + payload.pull_request.title + ' ' + payload.pull_request.html_url + ' ]')
+            bot.irc.say(channel, '[ ' + ghuser + ' ' + payload.action + ' pull request #' + payload.pull_request.number + ': ' + payload.pull_request.title + ' ' + payload.pull_request.html_url + ' ]')
           }
         }
       }
