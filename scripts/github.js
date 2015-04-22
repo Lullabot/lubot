@@ -21,9 +21,13 @@ module.exports = function(bot, app) {
               bot.irc.say(channel, '[ gh: ' + ghuser + ' ' + payload.action + ' issue #' + payload.issue.number + ': ' + payload.issue.title + ' ' + payload.issue.html_url + ' ]')
             }
           }
+          // Wiki Info
+          if (typeof payload.pages[0].action !== 'undefined') {
+            bot.irc.say(channel, '[ gh: ' + ghuser + ' ' + payload.pages[0].action + ' ' + payload.pages[0].page_name + ' - ' + payload.pages[0].html_url + ' ]')
+          }
           // Pull Requests
           else if (typeof payload.pull_request !== 'undefined') {
-            bot.irc.say(channel, '[ gh: ' + ghuser + ' ' + payload.action + ' pull request #' + payload.pull_request.number + ': ' + payload.pull_request.title + ' ' + payload.pull_request.html_url + ' ]')
+            bot.irc.say(channel, '[ ' + payload.sender.login + ' ' + payload.action + ' pull request #' + payload.pull_request.number + ': ' + payload.pull_request.title + ' ' + payload.pull_request.html_url + ' ]')
           }
         }
       }
