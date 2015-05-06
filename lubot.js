@@ -80,6 +80,7 @@ bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
   loadScripts();
   bot.ws.on('message', function(data, flags) {
     var message = JSON.parse(data);
+    console.log(message);
     if (message.type == 'hello') {
       bot.slackbot.text = 'I\'m alive!';
       bot.slackbot.channel = '#general';
@@ -132,7 +133,7 @@ bot.helpers.utils = {
     return false;
   },
   stripUpKarma: function(text) {
-    var re = new RegExp("([A-Za-z]{1,})(?=\\+\\+)");
+    var re = new RegExp("([A-Za-z]{1,})(?=[ :]*\\+\\+)");
     var matches = re.exec(text);
     if (matches) {
       return(matches[1]);
@@ -140,7 +141,7 @@ bot.helpers.utils = {
     return false;
   },
   stripDownKarma: function(text) {
-    var re = new RegExp("([A-Za-z]{1,})(?=\\-\\-)");
+    var re = new RegExp("([A-Za-z]{1,})(?=[ :]*\\-\\-)");
     var matches = re.exec(text);
     if (matches) {
       return(matches[1]);
