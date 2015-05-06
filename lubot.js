@@ -5,9 +5,11 @@ var config = {
   server: process.env.LUBOT_IRC_SERVER,
   port: process.env.LUBOT_IRC_PORT,
   botName: process.env.LUBOT_IRC_NICK,
+  botImg: process.env.LUBOT_BOT_IMG,
   mongoUrl: process.env.LUBOT_MONGODB,
   mongoPrefix: process.env.LUBOT_MONGOPREFIX,
-  secureToken: process.env.LUBOT_POST_TOKEN
+  secureToken: process.env.LUBOT_POST_TOKEN,
+  slackToken: process.env.LUBOT_SLACK_TOKEN
 };
 
 if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
@@ -61,6 +63,31 @@ bot.irc.setMaxListeners(50);
 bot.irc.addListener('error', function(message) {
     console.log('error: ', message);
 });
+
+// Connect to Slack
+var Slack = require('slack-node');
+var WebSocket = require('ws');
+
+bot.slack = new Slack(config.slackToken);
+
+bot.slackbot = {
+  username: config.botName,
+  icon_url: config.botImg
+};
+
+bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
+  bot.ws = new WebSocket(res.url);
+  loadScripts();
+  bot.ws.on('message', function(data, flags) {
+    var message = JSON.parse(data);
+    if (message.type == 'hello') {
+      bot.slackbot.text = 'I\'m alive!';
+      bot.slackbot.channel = '#general';
+      bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+    }
+  });
+});
+
 
 /**
  * Helpers for text processing.
@@ -545,8 +572,10 @@ bot.brain.mongoClient().connect(config.mongoUrl, function(err, db) {
 bot.help = require('./lib/help.js');
 
 // Load Scripts
-require("fs").readdirSync("./scripts/autorun").forEach(function(file) {
-  if (bot.helpers.utils.endsWith(".js", file) !== false) {
-    require("./scripts/autorun/" + file)(bot, app);
-  }
-});
+function loadScripts() {
+  require("fs").readdirSync("./scripts/autorun").forEach(function(file) {
+    if (bot.helpers.utils.endsWith(".js", file) !== false) {
+      require("./scripts/autorun/" + file)(bot, app);
+    }
+  });
+}
