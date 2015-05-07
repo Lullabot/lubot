@@ -27,29 +27,29 @@ module.exports = function(bot) {
 
   bot.ws.on('message', function(data, flags) {
     var message = JSON.parse(data);
-    console.log(message);
+    var factText = false;
     if (message.subtype !== "bot_message" && message.text) {
       botText = bot.helpers.utils.startsSlackBot(message.text);
       if (botText !== false) {
-        var factText = botText;
-
+        factText = botText;
         // Add factoids, note that we also match the is|are that's used when
         // setting a factoid so that we can respond correctly.
         var re = /(.+?)\s(is|are)\s(.+)/;
         var matches = re.exec(factText);
         if (!bot.helpers.utils.empty(matches, 1) && !bot.helpers.utils.empty(matches, 2)) {
           bot.brain.upsertToCollection('factoids', {key: matches[1], channel: message.channel}, {key: matches[1], channel: message.channel, factoid: matches[3], is_are: matches[2]});
-          bot.slackbot.text = '<' + message.user + '> Okay!';
+          bot.slackbot.text = '<@' + message.user + '> Okay!';
           bot.slackbot.channel = message.channel;
           bot.slack.api('chat.postMessage', bot.slackbot, function (){});
         }
       }
 
+      if (factText !== false) {
       // Delete a factoid.
       var delText = bot.helpers.utils.startsWith('delete factoid ', factText);
       if (delText !== false) {
-        bot.brain.removeFromCollection('factoids', {key: delText, channel: to});
-        bot.slackbot.text = '<' + message.user + '> Okay!';
+        bot.brain.removeFromCollection('factoids', {key: delText, channel: message.channel});
+        bot.slackbot.text = '<@' + message.user + '> Okay! I have forgotten about ' + delText;
         bot.slackbot.channel = message.channel;
         bot.slack.api('chat.postMessage', bot.slackbot, function (){});
       }
@@ -70,14 +70,9 @@ module.exports = function(bot) {
             var factoidMessage = docs[0].factoid;
             // Was the factoid set using "is" or "are"?
             var is_are = docs[0].is_are;
-            // Allow for the string !who in factoids to be replaced with the nick
-            // from the user making the query.
-            factoidMessage = message.replace(/\!who/gi, '<' + message.id + '>');
-
             // Allow for <reply> style factoids.
             var is_reply = factoidMessage.indexOf('<reply>') === 0;
-            factoidMessage = message.replace('<reply>', '');
-
+            factoidMessage = factoidMessage.replace('<reply>', '');
             // Format our response.
             if (is_reply === true) {
               response = factoidMessage;
@@ -92,6 +87,7 @@ module.exports = function(bot) {
           }
         });
       }
+    }
     }
   });
 

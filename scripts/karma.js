@@ -18,8 +18,6 @@ module.exports = function(bot) {
         if (message.subtype !== "bot_message" && message.text) {
         // Retrieves karma
         var karmaText = bot.helpers.utils.startsWith('karma ', message.text);
-        console.log("Message.Text: " + message.text);
-        console.log("Starts with karma: " + karmaText);
         if (karmaText !== false) {
             var entity = bot.helpers.utils.slackUserStrip(karmaText);
             if (entity !== false) {
@@ -33,7 +31,6 @@ module.exports = function(bot) {
             if (bot.users[karmaText]) {
                 karmaText = bot.users[karmaText];
             }
-            console.log("karmaText: " + karmaText);
             bot.brain.loadFromCollection('karma', {
                 key: karmaText,
                 channel: message.channel
