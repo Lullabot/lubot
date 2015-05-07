@@ -105,6 +105,9 @@ bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
     else {
       for (var i = 0; i < res.members.length; i++) {
         bot.users[res.members[i].id] = res.members[i].name;
+          if (res.members[i].is_bot == true) {
+            bot.slackbot.nick = res.members[i].name;
+          }
       }
       loadScripts();
     }
@@ -148,6 +151,14 @@ bot.helpers.utils = {
    */
   startsBot: function(text) {
     var re = new RegExp(bot.irc.opt.nick + "(.+?) (.+)", "gi");
+    var matches = re.exec(text);
+    if (matches) {
+      return matches[2]
+    }
+    return false;
+  },
+  startsSlackBot: function(text) {
+    var re = new RegExp(bot.slackbot.nick + "(.+?) (.+)", "gi");
     var matches = re.exec(text);
     if (matches) {
       return matches[2]
