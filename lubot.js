@@ -1,3 +1,8 @@
+var express = require('express');
+var app = express();
+var fs = require('fs');
+var https = require('https');
+
 // Bot configuration.
 var config = {
   webPort: Number(process.env.PORT || 5000),
@@ -9,7 +14,13 @@ var config = {
   mongoUrl: process.env.LUBOT_MONGODB,
   mongoPrefix: process.env.LUBOT_MONGOPREFIX,
   secureToken: process.env.LUBOT_POST_TOKEN,
-  slackToken: process.env.LUBOT_SLACK_TOKEN
+  slackToken: process.env.LUBOT_SLACK_TOKEN,
+};
+
+var server_options = {
+  key  : fs.readFileSync('/etc/ssl/box.key'),
+  ca   : fs.readFileSync('/etc/ssl/sub.class1.server.ca.pem'),
+  cert : fs.readFileSync('/etc/ssl/box.crt')
 };
 
 if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
@@ -19,22 +30,24 @@ else {
   config.botPassword = null;
 }
 
-var express = require('express');
-var app = express();
 app.use(express.json());
 app.use(express.urlencoded());
 app.get('/', function(req, res){
   res.send('Hello, world!');
 });
 app.post('/post0r', function(request, response) {
-  if (request.body !== null && request.body.token == config.secureToken && request.body.channel !== null) {
+  if (request.body && request.body.token == config.secureToken && request.body.channel) {
     var message = request.body.message;
     bot.irc.say(request.body.channel, message);
+    bot.slackbot.text = request.body.message;
+    bot.slackbot.channel = request.body.channel;
+    bot.slack.api('chat.postMessage', bot.slackbot, function (){});
     response.send(200);
   }
   return true;
 });
-app.listen(config.webPort);
+
+https.createServer(server_options,app).listen(8000);
 
 // Intialise the bot.
 var bot = {
@@ -71,20 +84,29 @@ var WebSocket = require('ws');
 bot.slack = new Slack(config.slackToken);
 
 bot.slackbot = {
-  username: config.botName,
   icon_url: config.botImg
 };
 
+bot.users = {};
+
 bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
   bot.ws = new WebSocket(res.url);
-  loadScripts();
   bot.ws.on('message', function(data, flags) {
     var message = JSON.parse(data);
     console.log(message);
     if (message.type == 'hello') {
-      bot.slackbot.text = 'I\'m alive!';
-      bot.slackbot.channel = '#general';
-      bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+      console.log("Bot connected to Slack RTM Stream");
+    }
+  });
+  bot.slack.api('users.list', function (err, res) {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      for (var i = 0; i < res.members.length; i++) {
+        bot.users[res.members[i].id] = res.members[i].name;
+      }
+      loadScripts();
     }
   });
 });
@@ -133,7 +155,7 @@ bot.helpers.utils = {
     return false;
   },
   stripUpKarma: function(text) {
-    var re = new RegExp("([A-Za-z]{1,})(?=[ :]*\\+\\+)");
+    var re = new RegExp("([A-Za-z0-9]{1,})(?=[ >:]*\\+\\+)");
     var matches = re.exec(text);
     if (matches) {
       return(matches[1]);
@@ -141,7 +163,15 @@ bot.helpers.utils = {
     return false;
   },
   stripDownKarma: function(text) {
-    var re = new RegExp("([A-Za-z]{1,})(?=[ :]*\\-\\-)");
+    var re = new RegExp("([A-Za-z0-9]{1,})(?=[ >:]*\-\-)");
+    var matches = re.exec(text);
+    if (matches) {
+      return(matches[1]);
+    }
+    return false;
+  },
+  slackUserStrip: function(text) {
+    var re = new RegExp("([A-Za-z0-9]{1,})");
     var matches = re.exec(text);
     if (matches) {
       return(matches[1]);
