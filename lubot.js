@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var fs = require('fs');
-var https = require('https');
+var http = require('http');
 
 // Bot configuration.
 var config = {
@@ -17,12 +17,6 @@ var config = {
   slackToken: process.env.LUBOT_SLACK_TOKEN,
 };
 
-var server_options = {
-  key  : fs.readFileSync('/etc/ssl/box.key'),
-  ca   : fs.readFileSync('/etc/ssl/sub.class1.server.ca.pem'),
-  cert : fs.readFileSync('/etc/ssl/box.crt')
-};
-
 if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
   config.botPassword = process.env.LUBOT_IRC_NICK_PW;
 }
@@ -35,6 +29,8 @@ app.use(express.urlencoded());
 app.get('/', function(req, res){
   res.send('Hello, world!');
 });
+app.listen(config.webPort);
+
 app.post('/post0r', function(request, response) {
   if (request.body && request.body.token == config.secureToken && request.body.channel) {
     var message = request.body.message;
@@ -47,7 +43,6 @@ app.post('/post0r', function(request, response) {
   return true;
 });
 
-https.createServer(server_options,app).listen(8000);
 
 // Intialise the bot.
 var bot = {
