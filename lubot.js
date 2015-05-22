@@ -163,23 +163,34 @@ bot.helpers.utils = {
     return false;
   },
   stripUpKarma: function(text) {
-    var re = new RegExp("([A-Za-z0-9]{1,})(?=[ >:]*\\+\\+)");
-    var matches = re.exec(text);
-    if (matches) {
-      return(matches[1]);
-    }
-    return false;
+    return bot.helpers.utils.stripKarma(text, 'up');
   },
   stripDownKarma: function(text) {
-    var re = new RegExp("([A-Za-z0-9]{1,})(?=[ >:]*\-\-)");
-    var matches = re.exec(text);
+    return bot.helpers.utils.stripKarma(text, 'down');
+  },
+  stripKarma: function(text, direction) {
+    var re = new RegExp('^(.+)(?=[ >:]*' + (direction === 'down' ? '--' : '\\+\\+') + ')', 'i'),
+      matches,
+      ret = false;
+
+    text = text.replace(/^\s+|\s+$/, '');
+    matches = re.exec(text);
     if (matches) {
-      return(matches[1]);
+      ret = matches[1];
+      // Furthur processing.
+      // Special case for user away name, eg. [tlattimore]
+      if (matches = ret.match(/^\[(.+)]/i)) {
+        ret = matches[1];
+      }
+      // Special case for user status with "|" character.
+      else if (matches = ret.match(/^(.+)\|.+/i)) {
+        ret = matches[1];
+      }
     }
-    return false;
+    return ret;
   },
   slackUserStrip: function(text) {
-    var re = new RegExp("([A-Za-z0-9]{1,})");
+    var re = new RegExp("([-._a-z0-9]+)", "i");
     var matches = re.exec(text);
     if (matches) {
       return(matches[1]);
