@@ -42,20 +42,19 @@ module.exports = function(bot) {
           bot.slackbot.channel = message.channel;
           bot.slack.api('chat.postMessage', bot.slackbot, function (){});
         }
-      }
 
-      if (factText !== false) {
       // Delete a factoid.
-      var delText = bot.helpers.utils.startsWith('delete factoid ', factText);
-      if (delText !== false) {
-        bot.brain.removeFromCollection('factoids', {key: delText, channel: message.channel});
-        bot.slackbot.text = '<@' + message.user + '> Okay! I have forgotten about ' + delText;
-        bot.slackbot.channel = message.channel;
-        bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+        var delText = bot.helpers.utils.startsWith('delete factoid ', factText);
+        if (delText !== false) {
+          bot.brain.removeFromCollection('factoids', {key: delText, channel: message.channel});
+          bot.slackbot.text = '<@' + message.user + '> Okay! I have forgotten about ' + delText;
+          bot.slackbot.channel = message.channel;
+          bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+        }
       }
 
       // Respond to factoids.
-      var factoid = factText;
+      var factoid = message.text;
       var qText = bot.helpers.utils.endsWith('?', factoid);
       if (qText !== false) {
         factoid = qText;
@@ -64,6 +63,7 @@ module.exports = function(bot) {
         factoid = bot.helpers.utils.endsWith('!', factoid);
       }
       if (factoid !== false) {
+        console.log("factoid: " + factoid);
         bot.brain.loadFromCollection('factoids', {key: factoid, channel: message.channel}, {}, function(docs) {
           if (docs.hasOwnProperty(0)) {
             var response;
@@ -87,7 +87,6 @@ module.exports = function(bot) {
           }
         });
       }
-    }
     }
   });
 
