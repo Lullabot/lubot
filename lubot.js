@@ -92,7 +92,8 @@ var WebSocket = require('ws');
 bot.slack = new Slack(config.slackToken);
 
 bot.slackbot = {
-  icon_url: config.botImg
+  icon_url: config.botImg,
+  nick: config.botName
 };
 
 bot.users = [];
@@ -114,9 +115,6 @@ bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
     else {
       for (var i = 0; i < res.members.length; i++) {
         bot.users.push ({ name: res.members[i].name, id: res.members[i].id, email: res.members[i].profile.email, real_name: res.members[i].real_name });
-          if (res.members[i].is_bot == true) {
-            bot.slackbot.nick = res.members[i].name;
-          }
       }
       loadScripts();
     }
