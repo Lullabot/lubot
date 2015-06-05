@@ -52,18 +52,9 @@ You'll also need to make sure MongoDB is running. If you've got it installed alr
 mongod --fork --dbpath=./data/db --logpath ./data/logfile --logappend
 ```
 
-Set the environment variables that the bot uses for configuration.
-
+Copy the default.config.yml file to config.yml and edit as desired
 ```
-export LUBOT_IRC_ROOMS="#room1,#room2"
-export LUBOT_IRC_SERVER="holmes.freenode.net"
-export LUBOT_IRC_PORT=6697
-export LUBOT_IRC_NICK="lubot"
-export LUBOT_IRC_NICK_PW="password"
-# mongodb://<username>:<password>@<host>:<port>/<database>
-export LUBOT_MONGODB="mongodb://localhost/lubot"
-export LUBOT_MONGOPREFIX="lubot_"
-export LUBOT_GITHUB="{\"Lullabot/lubot\": \"#bot\"}";
+cp default.config.yml config.yml
 ```
 
 Finally, start up the bot.
