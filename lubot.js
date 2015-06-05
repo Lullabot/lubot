@@ -4,21 +4,11 @@ var fs = require('fs');
 var https = require('https');
 var http = require('http');
 
+var yaml_config = require('node-yaml-config');
+ 
 // Bot configuration.
-var config = {
-  webPort: Number(process.env.PORT || 5000),
-  channels: process.env.LUBOT_IRC_ROOMS.split(","),
-  server: process.env.LUBOT_IRC_SERVER,
-  port: process.env.LUBOT_IRC_PORT,
-  botName: process.env.LUBOT_IRC_NICK,
-  botImg: process.env.LUBOT_BOT_IMG,
-  mongoUrl: process.env.LUBOT_MONGODB,
-  mongoPrefix: process.env.LUBOT_MONGOPREFIX,
-  secureToken: process.env.LUBOT_POST_TOKEN,
-  slackToken: process.env.LUBOT_SLACK_TOKEN,
-  ssl: process.env.LUBOT_USE_SSL,
-};
-
+var config = yaml_config.load(__dirname + '/config.yml');
+console.log(config);
 
 if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
   config.botPassword = process.env.LUBOT_IRC_NICK_PW;
