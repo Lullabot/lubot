@@ -16,7 +16,7 @@ var config = {
   mongoPrefix: process.env.LUBOT_MONGOPREFIX,
   secureToken: process.env.LUBOT_POST_TOKEN,
   slackToken: process.env.LUBOT_SLACK_TOKEN,
-  ssl: true,
+  ssl: process.env.LUBOT_USE_SSL,
 };
 
 
