@@ -24,18 +24,6 @@ Set your webhook URL to "http://&lt;your-domain&gt;/github" and export a JSON ob
 ### Heroku
 Create a MongoLab database, making sure you tick the "experimental features". You may have to create another one through the MongoLab interface after Heroku has created a default one. You can use this URL for your local development as well.
 
-Set the following environment variables.
-```
-heroku config:add LUBOT_IRC_ROOMS="#room1,room2"
-heroku config:add LUBOT_IRC_SERVER="holmes.freenode.net"
-heroku config:add LUBOT_IRC_PORT=6697
-heroku config:add LUBOT_IRC_NICK="lubot"
-heroku config:add LUBOT_IRC_NICK_PW="password"
-heroku config:add LUBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
-heroku config:add LUBOT_MONGOPREFIX="lubot_"
-heroku config:add LUBOT_GITHUB="{\"Lullabot/lubot\": \"#bot\"}";
-```
-
 Add the Heroku Scheduler app and add the command "rake dyno_ping" every 10 minutes to prevent your dyno from sleeping.
 
 ### Locally
