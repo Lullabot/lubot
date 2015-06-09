@@ -169,10 +169,23 @@ bot.helpers.utils = {
     return bot.helpers.utils.stripKarma(text, 'down');
   },
   stripKarma: function(text, direction) {
-    var re = new RegExp('^(.+)(?=[ >:]*' + (direction === 'down' ? '--' : '\\+\\+') + '$)', 'i'),
+    // So this crazy regex will..
+    // - Match the beggining of the string
+    // - Ignore any leading @
+    // - Match what follows up to, but not including an optional trailing space,
+    //   ">", or ":" ending with a "++" or "--"
+    // - Note that the first capturing group captures non-greedy, so that it
+    //   doesn't consume any extra "+" or "-" that may be part of the text,
+    //   eg. in q0rban++++++++, the first capture group will only take q0rban.
+    //   This leaves any "+" or "-" for the lookahead to match, and thus capture
+    //   the text we care about, while ignoring the superfluous "+" and "-".
+    var f = require('util').format,
+      modifier = (direction == 'down' ? '-' : '\\+'),
+      re = new RegExp(f('^@?(.+?)(?=[ >:]*%s{2,}$)', modifier)),
       matches,
       ret = false;
 
+    // Ignore any leading or trailing space
     text = text.replace(/^\s+|\s+$/, '');
     matches = re.exec(text);
     if (matches) {
