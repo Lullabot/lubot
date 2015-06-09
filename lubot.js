@@ -8,7 +8,6 @@ var yaml_config = require('node-yaml-config');
  
 // Bot configuration.
 var config = yaml_config.load(__dirname + '/config.yml');
-console.log(config);
 
 if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
   config.botPassword = process.env.LUBOT_IRC_NICK_PW;
@@ -49,7 +48,8 @@ app.listen(config.webPort);
 
 // Intialise the bot.
 var bot = {
-  helpers: {}
+  helpers: {},
+  config: config
 };
 
 // Connect to IRC.
@@ -98,7 +98,6 @@ bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
     }
   });
   bot.slack.api('users.list', function (err, res) {
-    console.log(JSON.stringify(res));
     if (err) {
       console.log(err);
     }
