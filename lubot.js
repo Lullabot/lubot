@@ -169,7 +169,7 @@ bot.helpers.utils = {
     return bot.helpers.utils.stripKarma(text, 'down');
   },
   stripKarma: function(text, direction) {
-    var re = new RegExp('^(.+)(?=[ >:]*' + (direction === 'down' ? '--' : '\\+\\+') + ')', 'i'),
+    var re = new RegExp('^(.+)(?=[ >:]*' + (direction === 'down' ? '--' : '\\+\\+') + '$)', 'i'),
       matches,
       ret = false;
 
@@ -185,6 +185,12 @@ bot.helpers.utils = {
       // Special case for user status with "|" character.
       else if (matches = ret.match(/^(.+)\|.+/i)) {
         ret = matches[1];
+      }
+
+      // Ignore any matches greater than 34 chars, this is aribitrary, existing
+      // DB has entries up to 34 chars in length, so 34 seems reasonable
+      if (ret.length > 34) {
+        ret = false;
       }
     }
     return ret;
