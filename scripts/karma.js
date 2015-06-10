@@ -15,7 +15,7 @@ module.exports = function(bot) {
 
     bot.ws.on('message', function(data, flags) {
         var message = JSON.parse(data);
-        if (message.subtype !== "bot_message" && message.text) {
+        if (message.subtype !== "bot_message" && message.text && (message.channel == 'C024XJ9DZ' || message.channel == 'C0553ARSR')) {
         // Retrieves karma
         var karmaText = bot.helpers.utils.startsWith('karma ', message.text);
         if (karmaText !== false) {
@@ -54,11 +54,13 @@ module.exports = function(bot) {
         // ++
         var userUp = bot.helpers.utils.stripUpKarma(message.text);
         if (userUp) {
-            var User = bot.helpers.utils.searchArray(bot.users, "id", userUp);
+            console.log('message text: ' + message.text);
+            var User = bot.helpers.utils.searchArray(bot.users, "id", bot.helpers.utils.slackUserStrip(userUp));
 console.log("User: " + User);
             if (User) {
                 userUp = User.name;
             }
+            console.log('incrementing: ' + userUp);
             bot.brain.incValue({
                 key: userUp,
                 channel: message.channel
@@ -71,18 +73,18 @@ console.log("User: " + User);
         // --
         var userDown = bot.helpers.utils.stripDownKarma(message.text);
         if (userDown) {
-          var User = bot.helpers.utils.searchArray(bot.users, "id", userUp);
+          var User = bot.helpers.utils.searchArray(bot.users, "id", bot.helpers.utils.slackUserStrip(userUp));
             if (User) {
                 userDown = User.name;
+                bot.brain.incValue({
+                  key: userDown,
+                  channel: message.channel
+                }, -1, 'karma', function (inc) {
+                  bot.slackbot.text = userDown + ' has a karma of ' + inc.value;
+                  bot.slackbot.channel = message.channel;
+                  bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+                });
             }
-            bot.brain.incValue({
-                key: userDown,
-                channel: message.channel
-            }, -1, 'karma', function (inc) {
-                bot.slackbot.text = userDown + ' has a karma of ' + inc.value;
-                bot.slackbot.channel = message.channel;
-                bot.slack.api('chat.postMessage', bot.slackbot, function (){});
-            });
         }
       }
     });
