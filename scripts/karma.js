@@ -31,7 +31,6 @@ module.exports = function(bot) {
             
             var User = bot.helpers.utils.searchArray(bot.users, "id", karmaText);
             if (User) {
-                console.log("karma winning: " + User.name);
                 karmaText = User.name;
             }
 
@@ -54,36 +53,47 @@ module.exports = function(bot) {
         // ++
         var userUp = bot.helpers.utils.stripUpKarma(message.text);
         if (userUp) {
-            console.log('message text: ' + message.text);
-            var User = bot.helpers.utils.searchArray(bot.users, "id", bot.helpers.utils.slackUserStrip(userUp));
-console.log("User: " + User);
+          var slackUser = bot.helpers.utils.searchArray(bot.users, "name", bot.helpers.utils.slackUserStrip(userUp));
+          var User = bot.helpers.utils.searchArray(bot.users, "id", bot.helpers.utils.slackUserStrip(userUp));
+          if (message.user == User.id || message.user == slackUser.id) {
+            bot.slackbot.text = 'You cannot change your fate.';
+            bot.slackbot.channel = message.channel;
+            bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+          }
+          else {
             if (User) {
-                userUp = User.name;
+              userUp = User.name;
             }
-            console.log('incrementing: ' + userUp);
             bot.brain.incValue({
-                key: userUp,
-                channel: message.channel
+              key: userUp,
+              channel: message.channel
             }, 1, 'karma', function (inc) {
-                bot.slackbot.text = userUp + ' has a karma of ' + inc.value;
-                bot.slackbot.channel = message.channel;
-                bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+              bot.slackbot.text = userUp + ' has a karma of ' + inc.value;
+              bot.slackbot.channel = message.channel;
+              bot.slack.api('chat.postMessage', bot.slackbot, function (){});
             });
+          }
         }
         // --
         var userDown = bot.helpers.utils.stripDownKarma(message.text);
         if (userDown) {
-          var User = bot.helpers.utils.searchArray(bot.users, "id", bot.helpers.utils.slackUserStrip(userUp));
-            if (User) {
-                userDown = User.name;
-                bot.brain.incValue({
-                  key: userDown,
-                  channel: message.channel
-                }, -1, 'karma', function (inc) {
-                  bot.slackbot.text = userDown + ' has a karma of ' + inc.value;
-                  bot.slackbot.channel = message.channel;
-                  bot.slack.api('chat.postMessage', bot.slackbot, function (){});
-                });
+          var slackUser = bot.helpers.utils.slackUserStrip(userDown);
+          var User = bot.helpers.utils.searchArray(bot.users, "id", slackUser);
+            if (User && User !== userDown && message.user !== slackUser) {
+              userDown = User.name;
+              bot.brain.incValue({
+                key: userDown,
+                channel: message.channel
+              }, -1, 'karma', function (inc) {
+                bot.slackbot.text = userDown + ' has a karma of ' + inc.value;
+                bot.slackbot.channel = message.channel;
+                bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+              });
+            }
+            else {
+              bot.slackbot.text = 'You cannot change your fate.';
+              bot.slackbot.channel = message.channel;
+              bot.slack.api('chat.postMessage', bot.slackbot, function (){});
             }
         }
       }
