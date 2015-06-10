@@ -36,7 +36,6 @@ module.exports = function(bot) {
 
             bot.brain.loadFromCollection('karma', {
                 key: karmaText,
-                channel: message.channel
             }, {}, function (docs) {
                 if (bot.helpers.utils.empty(docs, 0)) {
                     bot.slackbot.text = karmaText + ' has a karma of 0';
@@ -56,7 +55,7 @@ module.exports = function(bot) {
           var slackUser = bot.helpers.utils.searchArray(bot.users, "name", bot.helpers.utils.slackUserStrip(userUp));
           var User = bot.helpers.utils.searchArray(bot.users, "id", bot.helpers.utils.slackUserStrip(userUp));
           if (message.user == User.id || message.user == slackUser.id) {
-            bot.slackbot.text = 'You cannot change your fate.';
+            bot.slackbot.text = 'What fates impose, that men must needs abide';
             bot.slackbot.channel = message.channel;
             bot.slack.api('chat.postMessage', bot.slackbot, function (){});
           }
@@ -66,7 +65,6 @@ module.exports = function(bot) {
             }
             bot.brain.incValue({
               key: userUp,
-              channel: message.channel
             }, 1, 'karma', function (inc) {
               bot.slackbot.text = userUp + ' has a karma of ' + inc.value;
               bot.slackbot.channel = message.channel;
@@ -83,7 +81,6 @@ module.exports = function(bot) {
               userDown = User.name;
               bot.brain.incValue({
                 key: userDown,
-                channel: message.channel
               }, -1, 'karma', function (inc) {
                 bot.slackbot.text = userDown + ' has a karma of ' + inc.value;
                 bot.slackbot.channel = message.channel;
@@ -91,7 +88,7 @@ module.exports = function(bot) {
               });
             }
             else {
-              bot.slackbot.text = 'You cannot change your fate.';
+              bot.slackbot.text = 'What fates impose, that men must needs abide';
               bot.slackbot.channel = message.channel;
               bot.slack.api('chat.postMessage', bot.slackbot, function (){});
             }
