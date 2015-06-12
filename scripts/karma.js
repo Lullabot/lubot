@@ -75,10 +75,17 @@ module.exports = function(bot) {
         // --
         var userDown = bot.helpers.utils.stripDownKarma(message.text);
         if (userDown) {
-          var slackUser = bot.helpers.utils.slackUserStrip(userDown);
-          var User = bot.helpers.utils.searchArray(bot.users, "id", slackUser);
-            if (User && User !== userDown && message.user !== slackUser) {
-              userDown = User.name;
+          var slackUser = bot.helpers.utils.searchArray(bot.users, "name", bot.helpers.utils.slackUserStrip(userDown));
+          var User = bot.helpers.utils.searchArray(bot.users, "id", bot.helpers.utils.slackUserStrip(userDown));
+            if (message.user == User.id || message.user == slackUser.id) {
+              bot.slackbot.text = 'What fates impose, that men must needs abide';
+              bot.slackbot.channel = message.channel;
+              bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+            }
+            else {
+              if (User) {
+                userDown = User.name;
+              }
               bot.brain.incValue({
                 key: userDown,
               }, -1, 'karma', function (inc) {
@@ -86,11 +93,6 @@ module.exports = function(bot) {
                 bot.slackbot.channel = message.channel;
                 bot.slack.api('chat.postMessage', bot.slackbot, function (){});
               });
-            }
-            else {
-              bot.slackbot.text = 'What fates impose, that men must needs abide';
-              bot.slackbot.channel = message.channel;
-              bot.slack.api('chat.postMessage', bot.slackbot, function (){});
             }
         }
       }
