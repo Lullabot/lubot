@@ -180,7 +180,7 @@ bot.helpers.utils = {
     //   the text we care about, while ignoring the superfluous "+" and "-".
     var f = require('util').format,
       modifier = (direction == 'down' ? '-' : '\\+'),
-      re = new RegExp(f('^@?(.+?)(?=[ >:]*%s{2,}$)', modifier)),
+      re = new RegExp(f('^@?(.+?)(?=[ :]*%s{2,}$)', modifier)),
       matches,
       ret = false;
 
@@ -214,6 +214,15 @@ bot.helpers.utils = {
       return(matches[1]);
     }
     return false;
+  },
+  slackIdToName: function(text) {
+    return text.replace(/<@(.+?)>/g, function(match, userId) {
+      var user;
+      if (user = bot.helpers.utils.searchArray(bot.users, 'id', userId)) {
+        return user.name;
+      }
+      return match;
+    });
   },
   /**
    * Finds if a string begins with another string, possibly prefixed by the
