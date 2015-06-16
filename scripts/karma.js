@@ -59,18 +59,22 @@ module.exports = function(bot) {
       karmaText = messageTextUp || messageTextDown;
 
       if (karmaText) {
-        // @todo check for increment/decrement ourselves
         slackUser = bot.helpers.utils.searchArray(bot.users, 'name', karmaText);
-        console.log(slackUser);
-        console.log(message.user);
-
-        bot.brain.incValue({
-          key: karmaText
-        }, direction, 'karma', function (inc) {
-          bot.slackbot.text = karmaText + ' has a karma of ' + inc.value;
+        if (message.user == slackUser.id) {
+          bot.slackbot.text = 'What fates impose, that men must needs abide';
           bot.slackbot.channel = message.channel;
           bot.slack.api('chat.postMessage', bot.slackbot, function (){});
-        });
+        }
+        else {
+          bot.brain.incValue({
+            key: karmaText
+          }, direction, 'karma', function (inc) {
+            bot.slackbot.text = karmaText + ' has a karma of ' + inc.value;
+            bot.slackbot.channel = message.channel;
+            bot.slack.api('chat.postMessage', bot.slackbot, function () {
+            });
+          });
+        }
       }
     }
   });
