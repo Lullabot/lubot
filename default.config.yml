@@ -1,0 +1,13 @@
+default:
+  webPort: 5000
+  channels:
+    - '#bottesting'
+  server: 'holmes.freenode.net'
+  port: 6697
+  botName: 'lullabuddy'
+  botImg: 'https://s3-us-west-2.amazonaws.com/slack-files2/bot_icons/2015-05-05/4743996168_48.png'
+  mongoUrl: 'mongodb://localhost/lubot'
+  mongoPrefix: 'lubot_'
+  secureToken: ''
+  slackToken: ''
+  ssl: false

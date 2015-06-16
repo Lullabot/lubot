@@ -24,18 +24,6 @@ Set your webhook URL to "http://&lt;your-domain&gt;/github" and export a JSON ob
 ### Heroku
 Create a MongoLab database, making sure you tick the "experimental features". You may have to create another one through the MongoLab interface after Heroku has created a default one. You can use this URL for your local development as well.
 
-Set the following environment variables.
-```
-heroku config:add LUBOT_IRC_ROOMS="#room1,room2"
-heroku config:add LUBOT_IRC_SERVER="holmes.freenode.net"
-heroku config:add LUBOT_IRC_PORT=6697
-heroku config:add LUBOT_IRC_NICK="lubot"
-heroku config:add LUBOT_IRC_NICK_PW="password"
-heroku config:add LUBOT_MONGODB="mongodb://<username>:<password>@<host>:<port>/<database>"
-heroku config:add LUBOT_MONGOPREFIX="lubot_"
-heroku config:add LUBOT_GITHUB="{\"Lullabot/lubot\": \"#bot\"}";
-```
-
 Add the Heroku Scheduler app and add the command "rake dyno_ping" every 10 minutes to prevent your dyno from sleeping.
 
 ### Locally
@@ -52,18 +40,9 @@ You'll also need to make sure MongoDB is running. If you've got it installed alr
 mongod --fork --dbpath=./data/db --logpath ./data/logfile --logappend
 ```
 
-Set the environment variables that the bot uses for configuration.
-
+Copy the default.config.yml file to config.yml and edit as desired
 ```
-export LUBOT_IRC_ROOMS="#room1,#room2"
-export LUBOT_IRC_SERVER="holmes.freenode.net"
-export LUBOT_IRC_PORT=6697
-export LUBOT_IRC_NICK="lubot"
-export LUBOT_IRC_NICK_PW="password"
-# mongodb://<username>:<password>@<host>:<port>/<database>
-export LUBOT_MONGODB="mongodb://localhost/lubot"
-export LUBOT_MONGOPREFIX="lubot_"
-export LUBOT_GITHUB="{\"Lullabot/lubot\": \"#bot\"}";
+cp default.config.yml config.yml
 ```
 
 Finally, start up the bot.
