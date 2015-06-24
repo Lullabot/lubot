@@ -83,32 +83,43 @@ bot.slack = new Slack(config.slackToken);
 
 bot.slackbot = {
   icon_url: config.botImg,
-  nick: config.botName
+  nick: config.botName,
+  reconnect: false
 };
 
 bot.users = [];
 
-bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
-  bot.ws = new WebSocket(res.url);
-  bot.ws.on('message', function(data, flags) {
-    var message = JSON.parse(data);
-    console.log(message);
-    if (message.type == 'hello') {
-      console.log("Bot connected to Slack RTM Stream");
-    }
-  });
-  bot.slack.api('users.list', function (err, res) {
-    if (err) {
-      console.log(err);
-    }
-    else {
-      for (var i = 0; i < res.members.length; i++) {
-        bot.users.push ({ name: res.members[i].name, id: res.members[i].id, email: res.members[i].profile.email, real_name: res.members[i].real_name });
-      }
-      loadScripts();
-    }
-  });
-});
+bot.slackbot.tools = {
+  start: function() {
+    bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
+      bot.ws = new WebSocket(res.url);
+      bot.ws.on('message', function(data, flags) {
+        var message = JSON.parse(data);
+        console.log(message);
+        if (message.type == 'hello') {
+          console.log("Bot connected to Slack RTM Stream");
+        }
+        if (message.type == 'team_migration_started') {
+          bot.slackbot.tools.start();
+          bot.slackbot.reconnect == true;
+        }
+      });
+      bot.slack.api('users.list', function (err, res) {
+        if (err) {
+          console.log(err);
+        }
+        else {
+          for (var i = 0; i < res.members.length; i++) {
+            bot.users.push ({ name: res.members[i].name, id: res.members[i].id, email: res.members[i].profile.email, real_name: res.members[i].real_name });
+          }
+          loadScripts();
+        }
+      });
+    });
+  }
+}
+
+bot.slackbot.tools.start();
 
 
 /**
@@ -661,9 +672,11 @@ bot.help = require('./lib/help.js');
 
 // Load Scripts
 function loadScripts() {
-  require("fs").readdirSync("./scripts/autorun").forEach(function(file) {
-    if (bot.helpers.utils.endsWith(".js", file) !== false) {
-      require("./scripts/autorun/" + file)(bot, app);
-    }
-  });
+  if (bot.slackbot.reconnect == false) {
+    require("fs").readdirSync("./scripts/autorun").forEach(function(file) {
+      if (bot.helpers.utils.endsWith(".js", file) !== false) {
+        require("./scripts/autorun/" + file)(bot, app);
+      }
+    });
+  }
 }
