@@ -1,13 +1,13 @@
+var express = require('express');
+var app = express();
+var fs = require('fs');
+var https = require('https');
+var http = require('http');
+
+var yaml_config = require('node-yaml-config');
+ 
 // Bot configuration.
-var config = {
-  webPort: Number(process.env.PORT || 5000),
-  channels: process.env.LUBOT_IRC_ROOMS.split(","),
-  server: process.env.LUBOT_IRC_SERVER,
-  port: process.env.LUBOT_IRC_PORT,
-  botName: process.env.LUBOT_IRC_NICK,
-  mongoUrl: process.env.LUBOT_MONGODB,
-  mongoPrefix: process.env.LUBOT_MONGOPREFIX
-};
+var config = yaml_config.load(__dirname + '/config.yml');
 
 if (typeof process.env.LUBOT_IRC_NICK_PW !== 'undefined') {
   config.botPassword = process.env.LUBOT_IRC_NICK_PW;
@@ -16,18 +16,40 @@ else {
   config.botPassword = null;
 }
 
-var express = require('express');
-var app = express();
 app.use(express.json());
 app.use(express.urlencoded());
 app.get('/', function(req, res){
   res.send('Hello, world!');
 });
+
+app.post('/post0r', function(request, response) {
+  if (request.body && request.body.token == config.secureToken && request.body.channel) {
+    var message = request.body.message;
+    bot.irc.say(request.body.channel, message);
+    bot.slackbot.text = request.body.message;
+    bot.slackbot.channel = request.body.channel;
+    bot.slack.api('chat.postMessage', bot.slackbot, function (){});
+    response.send(200);
+  }
+  return true;
+});
+
+
+if (config.ssl) {
+  var server_options = {
+    key: fs.readFileSync('/etc/ssl/box.key'),
+    ca: fs.readFileSync('/etc/ssl/sub.class1.server.ca.pem'),
+    cert : fs.readFileSync('/etc/ssl/box.crt')
+  };
+  https.createServer(server_options, app).listen(8000);
+}
+
 app.listen(config.webPort);
 
 // Intialise the bot.
 var bot = {
-  helpers: {}
+  helpers: {},
+  config: config
 };
 
 // Connect to IRC.
@@ -36,7 +58,9 @@ bot.irc = new irc.Client(config.server, config.botName, {
   channels: config.channels,
   port: config.port,
   secure: true,
-  stripColors: true
+  stripColors: true,
+  floodProtection: true,
+  floodProtectionDelay: 1000
 });
 bot.irc.once("registered", function(channel, who) {
   console.log('Connected to ' + config.server);
@@ -50,6 +74,53 @@ bot.irc.setMaxListeners(50);
 bot.irc.addListener('error', function(message) {
     console.log('error: ', message);
 });
+
+// Connect to Slack
+var Slack = require('slack-node');
+var WebSocket = require('ws');
+
+bot.slack = new Slack(config.slackToken);
+
+bot.slackbot = {
+  icon_url: config.botImg,
+  nick: config.botName,
+  reconnect: false
+};
+
+bot.users = [];
+
+bot.slackbot.tools = {
+  start: function() {
+    bot.slack.api('rtm.start', { agent: 'node-slack'}, function(err, res) {
+      bot.ws = new WebSocket(res.url);
+      bot.ws.on('message', function(data, flags) {
+        var message = JSON.parse(data);
+        console.log(message);
+        if (message.type == 'hello') {
+          console.log("Bot connected to Slack RTM Stream");
+        }
+        if (message.type == 'team_migration_started') {
+          bot.slackbot.tools.start();
+          bot.slackbot.reconnect == true;
+        }
+      });
+      bot.slack.api('users.list', function (err, res) {
+        if (err) {
+          console.log(err);
+        }
+        else {
+          for (var i = 0; i < res.members.length; i++) {
+            bot.users.push ({ name: res.members[i].name, id: res.members[i].id, email: res.members[i].profile.email, real_name: res.members[i].real_name });
+          }
+          loadScripts();
+        }
+      });
+    });
+  }
+}
+
+bot.slackbot.tools.start();
+
 
 /**
  * Helpers for text processing.
@@ -73,7 +144,7 @@ bot.helpers.utils = {
       if (newText.length > 0) {
         return newText;
       }
-    }
+    }    
     return false;
   },
   /**
@@ -90,6 +161,68 @@ bot.helpers.utils = {
     var matches = re.exec(text);
     if (matches) {
       return matches[2]
+    }
+    return false;
+  },
+  startsSlackBot: function(text) {
+    var re = new RegExp(bot.slackbot.nick + "(.+?) (.+)", "gi");
+    var matches = re.exec(text);
+    if (matches) {
+      return matches[2]
+    }
+    return false;
+  },
+  stripUpKarma: function(text) {
+    return bot.helpers.utils.stripKarma(text, 'up');
+  },
+  stripDownKarma: function(text) {
+    return bot.helpers.utils.stripKarma(text, 'down');
+  },
+  stripKarma: function(text, direction) {
+    // So this crazy regex will..
+    // - Match the beggining of the string
+    // - Ignore any leading @
+    // - Match what follows up to, but not including an optional trailing space,
+    //   ">", or ":" ending with a "++" or "--"
+    // - Note that the first capturing group captures non-greedy, so that it
+    //   doesn't consume any extra "+" or "-" that may be part of the text,
+    //   eg. in q0rban++++++++, the first capture group will only take q0rban.
+    //   This leaves any "+" or "-" for the lookahead to match, and thus capture
+    //   the text we care about, while ignoring the superfluous "+" and "-".
+    var f = require('util').format,
+      modifier = (direction == 'down' ? '-' : '\\+'),
+      re = new RegExp(f('^@?(.+?)(?=[ >:]*%s{2,}$)', modifier)),
+      matches,
+      ret = false;
+
+    // Ignore any leading or trailing space
+    text = text.replace(/^\s+|\s+$/, '');
+    matches = re.exec(text);
+    if (matches) {
+      ret = matches[1];
+      // Furthur processing.
+      // Special case for user away name, eg. [tlattimore]
+      if (matches = ret.match(/^\[(.+)]/i)) {
+        ret = matches[1];
+      }
+      // Special case for user status with "|" character.
+      else if (matches = ret.match(/^(.+)\|.+/i)) {
+        ret = matches[1];
+      }
+
+      // Ignore any matches greater than 34 chars, this is aribitrary, existing
+      // DB has entries up to 34 chars in length, so 34 seems reasonable
+      if (ret.length > 34) {
+        ret = false;
+      }
+    }
+    return ret;
+  },
+  slackUserStrip: function(text) {
+    var re = new RegExp("([-._a-z0-9]+)", "i");
+    var matches = re.exec(text);
+    if (matches) {
+      return(matches[1]);
     }
     return false;
   },
@@ -202,6 +335,25 @@ bot.helpers.utils = {
       return false;
     }
     return true;
+  },
+  /**
+   * Check array for value
+   * Needs more detail
+   */
+   searchArray:  function(array,key,value) {
+      for (i = 0; i < array.length; i++) {
+          if (array[i][key] === value) {
+              return array[i];
+          }
+      }
+      return false;
+   },
+  /**
+   * Sets User OOO,
+   *
+   */
+  setOoo: function(user) {
+    bot.users.push({ real_name: user, ooo: true});
   }
 };
 
@@ -229,19 +381,20 @@ bot.brain = {
       var collection_n = config.mongoPrefix + 'kv';
       if (collection_name !== null && typeof collection_name === 'string') {
         collection_n = config.mongoPrefix + collection_name;
-      }
-      var collection = db.collection(collection_n);
-      collection.findAndModify(
-        {key: key.toLowerCase()},
-        [['_id','asc']],
-        {$set: {value: value}},
-        {upsert: true},
-        function(err, object) {
-          db.close();
+      
+        var collection = db.collection(collection_n);
+        collection.findAndModify(
+          {key: key.toLowerCase()},
+          [['_id','asc']],
+          {$set: {value: value}},
+          {upsert: true},
+          function(err, object) {
+            db.close();
+          }
+        );
         }
-      );
-    });
-  },
+      })  ;
+    },
   /**
    * Retrieve an item from the Key/value store.
    *
@@ -445,7 +598,7 @@ bot.brain = {
    * @param (optional) string collection_name
    *   If this item has been stored into it's own collection, provide the name here.
    */
-  incValue: function(key, amount, collection_name) {
+  incValue: function(key, amount, collection_name, success) {
     if (key !== null && amount !== null && typeof amount === 'number') {
       this.mongoClient().connect(config.mongoUrl, function(err, db) {
         if (err) throw err;
@@ -461,14 +614,24 @@ bot.brain = {
         else if (typeof key === 'object') {
           search = key;
         }
-        collection.update(
+        collection.findAndModify(
           search,
-          {$inc: {value: amount}},
-          {upsert: true},
-          function(err, object) {
-            db.close();
+          [],
+          { $inc: { value: amount }},
+          { new: true ,
+            upsert: true,
+            w: 1
+          },
+          function(err, result) {
+            if (err) {
+              console.err(err);
+            }
+            else {
+              db.close();
+              success(result);
+            }
           }
-        );
+       );
       });
     }
   },
@@ -508,8 +671,12 @@ bot.brain.mongoClient().connect(config.mongoUrl, function(err, db) {
 bot.help = require('./lib/help.js');
 
 // Load Scripts
-require("fs").readdirSync("./scripts").forEach(function(file) {
-  if (bot.helpers.utils.endsWith(".js", file) !== false) {
-    require("./scripts/" + file)(bot, app);
+function loadScripts() {
+  if (bot.slackbot.reconnect == false) {
+    require("fs").readdirSync("./scripts/autorun").forEach(function(file) {
+      if (bot.helpers.utils.endsWith(".js", file) !== false) {
+        require("./scripts/autorun/" + file)(bot, app);
+      }
+    });
   }
-});
+}
