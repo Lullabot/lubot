@@ -181,13 +181,18 @@ bot.helpers.utils = {
     var f = require('util').format,
       modifier = (direction == 'down' ? '-' : '\\+'),
       re = new RegExp(f('^@?(.+?)(?=[ :]*%s{2,}$)', modifier)),
+      emo = new RegExp(f('^:.+?:(?=[ :]*%s{2,}$)', modifier)),
       matches,
+      emo_matches,
       ret = false;
 
     // Ignore any leading or trailing space
     text = text.replace(/^\s+|\s+$/, '');
-    matches = re.exec(text);
-    if (matches) {
+    // Special case to match emoticons
+    if (emo_matches = emo.exec(text)) {
+      ret = emo_matches[0];
+    }
+    else if (matches = re.exec(text)) {
       ret = matches[1];
       // Furthur processing.
       // Special case for user away name, eg. [tlattimore]
