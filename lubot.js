@@ -181,13 +181,30 @@ bot.helpers.utils = {
     var f = require('util').format,
       modifier = (direction == 'down' ? '-' : '\\+'),
       re = new RegExp(f('^@?(.+?)(?=[ :]*%s{2,}$)', modifier)),
+      emo = new RegExp(f('^:.+?:(?=[ :]*%s{2,}$)', modifier)),
+      url = new RegExp(f('^<(?:.*\\|)?(.+?)>(?=[ :]*%s{2,}$)', modifier)),
       matches,
+      emoMatches,
+      urlMatches,
       ret = false;
 
     // Ignore any leading or trailing space
     text = text.replace(/^\s+|\s+$/, '');
-    matches = re.exec(text);
-    if (matches) {
+
+    // Ignore any leading commands
+    // @see https://api.slack.com/docs/formatting
+    text = text.replace(/^<!(.*?)>/, '');
+
+    // Special case to match emoticons
+    if (emoMatches = emo.exec(text)) {
+      ret = emoMatches[0];
+    }
+    // Special case to match URLs
+    else if (urlMatches = url.exec(text)) {
+      ret = urlMatches[1];
+    }
+    // Default case
+    else if (matches = re.exec(text)) {
       ret = matches[1];
       // Furthur processing.
       // Special case for user away name, eg. [tlattimore]
