@@ -190,6 +190,11 @@ bot.helpers.utils = {
 
     // Ignore any leading or trailing space
     text = text.replace(/^\s+|\s+$/, '');
+
+    // Ignore any leading commands
+    // @see https://api.slack.com/docs/formatting
+    text = text.replace(/^<!(.*?)>/, '');
+
     // Special case to match emoticons
     if (emoMatches = emo.exec(text)) {
       ret = emoMatches[0];
