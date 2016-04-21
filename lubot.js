@@ -35,11 +35,11 @@ app.post('/post0r', function(request, response) {
 });
 
 
-if (config.ssl) {
+if (config.ssl.enable) {
   var server_options = {
-    key: fs.readFileSync('/etc/ssl/box.key'),
-    ca: fs.readFileSync('/etc/ssl/sub.class1.server.ca.pem'),
-    cert : fs.readFileSync('/etc/ssl/box.crt')
+    key: fs.readFileSync(config.ssl.key),
+    ca: fs.readFileSync(config.ssl.ca),
+    cert : fs.readFileSync(config.ssl.cert)
   };
   https.createServer(server_options, app).listen(8000);
 }
