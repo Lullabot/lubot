@@ -83,7 +83,7 @@ bot.slack = new Slack(config.slackToken);
 
 bot.slackbot = {
   nick: config.botName,
-  as_user: false,
+  as_user: true,
   reconnect: false
 };
 
@@ -96,7 +96,6 @@ bot.slackbot.tools = {
         bot.ws = new WebSocket(res.url);
         bot.ws.on('message', function (data, flags) {
           var message = JSON.parse(data);
-          console.log(message);
           if (message.type == 'hello') {
             console.log("Bot connected to Slack RTM Stream");
           }
