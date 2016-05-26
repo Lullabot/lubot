@@ -82,8 +82,8 @@ var WebSocket = require('ws');
 bot.slack = new Slack(config.slackToken);
 
 bot.slackbot = {
-  icon_url: config.botImg,
   nick: config.botName,
+  as_user: false,
   reconnect: false
 };
 
