@@ -100,7 +100,14 @@ bot.slackbot.tools = {
             console.log("Bot connected to Slack RTM Stream");
           }
           if (message.type == 'team_migration_started') {
+            console.log('team_migration_started - reconnecting....');
             bot.slackbot.tools.start();
+          }
+          if (message.type == 'migration_in_progress') {
+            console.log('migration_in_progress - sleeping 5s');
+            setTimeout(() => {
+              bot.slackbot.tools.start();
+            }, 5000);
           }
         });
         bot.slack.api('users.list', function (err, res) {
