@@ -5,7 +5,7 @@ var https = require('https');
 var http = require('http');
 
 var yaml_config = require('node-yaml-config');
- 
+
 // Bot configuration.
 var config = yaml_config.load(__dirname + '/config.yml');
 
@@ -131,7 +131,7 @@ bot.slackbot.tools = {
       }
       else {
         bot.slackbot.reconnect == true;
-        bot.slackbot.start();
+        bot.slackbot.tools.start();
       }
     });
   }
@@ -162,7 +162,7 @@ bot.helpers.utils = {
       if (newText.length > 0) {
         return newText;
       }
-    }    
+    }
     return false;
   },
   /**
@@ -399,7 +399,7 @@ bot.brain = {
       var collection_n = config.mongoPrefix + 'kv';
       if (collection_name !== null && typeof collection_name === 'string') {
         collection_n = config.mongoPrefix + collection_name;
-      
+
         var collection = db.collection(collection_n);
         collection.findAndModify(
           {key: key.toLowerCase()},
