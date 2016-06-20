@@ -109,6 +109,9 @@ bot.slackbot.tools = {
               bot.slackbot.tools.start();
             }, 5000);
           }
+          if (message.type == 'error') {
+            console.log(message.error);
+          }
         });
         bot.slack.api('users.list', function (err, res) {
           if (err) {

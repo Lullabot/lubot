@@ -37,6 +37,7 @@ module.exports = function(bot) {
         var re = /(.+?)\s(is|are)\s(.+)/;
         var matches = re.exec(factText);
         if (!bot.helpers.utils.empty(matches, 1) && !bot.helpers.utils.empty(matches, 2)) {
+          // We should really jump in here and check if this factoid exists in mongo, if it does, throw an error, and tell the person to say "is also" or "are also".
           bot.brain.upsertToCollection('factoids', {key: matches[1], channel: message.channel}, {key: matches[1], channel: message.channel, factoid: matches[3], is_are: matches[2]});
           bot.slackbot.text = '<@' + message.user + '> Okay!';
           bot.slackbot.channel = message.channel;
